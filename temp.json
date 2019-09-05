@@ -1,0 +1,57 @@
+{
+    "nombre": "",
+    "universidad": "",
+    "usuario": "",
+    "contraseña": "",
+    "horario":[
+        {
+            "lunes":[{
+                "hora-inicio":"",
+                "hora-final":"",
+                "periodo":[{"":""}]
+            }]
+        },
+        {
+            "martes":[{
+                "hora-inicio":"",
+                "hora-final":"",
+                "periodo":[{"":""}]
+            }]
+        },
+        {
+            "miercoles":[{
+                "hora-inicio":"",
+                "hora-final":"",
+                "periodo":[{"":""}]
+            }]
+        },
+        {
+            "jueves":[{
+                "hora-inicio":"",
+                "hora-final":"",
+                "periodo":[{"":""}]
+            }]
+        },
+        {
+            "viernes":[{
+                "hora-inicio":"",
+                "hora-final":"",
+                "periodo":[{"":""}]
+            }]
+        },
+        {
+            "sabado":[{
+                "hora-inicio":"",
+                "hora-final":"",
+                "periodo":[{"":""}]
+            }]
+        },
+        {
+            "domingo":[{
+                "hora-inicio":"",
+                "hora-final":"",
+                "periodo":[{"":""}]
+            }]
+        }
+    ]
+}
