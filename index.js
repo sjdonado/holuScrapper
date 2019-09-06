@@ -4,24 +4,41 @@ const app = express()
 app.get('/:user/:pass', async function (req, res) {
     let user = req.params.user
     let pass = req.params.pass
-    const data = await run(user, pass);
-    console.log(data)
-    res.send("done!")
+    await run(user, pass);
+    res.send(horario)
 })
 app.listen(3000);
 console.log('server started on port 3000');
+let horario = []
+class clase {
 
+    constructor(horai, horaf, dia, intervalos) {
+        this.horainicial = horai
+        this.horafinal = horaf
+        this.dia = dia
+        this.intervalos = intervalos
+    }
+
+}
+class clases {
+
+    constructor(horai, horaf, intervalos) {
+        this.horainicial = horai
+        this.horafinal = horaf
+        this.intervalos = intervalos
+    }
+
+}
 async function run(user, pass) {
-
-    const USERNAME_SELECTOR = '#UserID'
-    const PASSWORD_SELECTOR = '#PIN > input[type=password]'
-    const INFOACADEMICA_SELECTOR = 'body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(1) > td:nth-child(2) > a'
-    const MATRICULA_SELECTOR = 'body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(2) > td:nth-child(2) > a'
-    const HORARIO_SELECTOR = 'body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(4) > td:nth-child(2) > a'
-    const SELECT_SELECTOR = '#term_id'
-    const BOTON_SELECTOR = 'body > div.pagebodydiv > form > input[type=submit]'
-    const browser = await puppeteer.launch({ headless: false, timeout: 0 });
+    const browser = await puppeteer.launch({headless:false, args: ['--no-sandbox'] });
     try {
+        const USERNAME_SELECTOR = '#UserID'
+        const PASSWORD_SELECTOR = '#PIN > input[type=password]'
+        const INFOACADEMICA_SELECTOR = 'body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(1) > td:nth-child(2) > a'
+        const MATRICULA_SELECTOR = 'body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(2) > td:nth-child(2) > a'
+        const HORARIO_SELECTOR = 'body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(4) > td:nth-child(2) > a'
+        const SELECT_SELECTOR = '#term_id'
+        const BOTON_SELECTOR = 'body > div.pagebodydiv > form > input[type=submit]'
         const page = await browser.newPage();
         await page.goto('https://pomelo.uninorte.edu.co/pls/prod/twbkwbis.P_WWWLogin');
         await page.click(USERNAME_SELECTOR);
@@ -40,63 +57,65 @@ async function run(user, pass) {
         const data = await page.evaluate(() =>
             Array.from(document.querySelectorAll('body div.pagebodydiv table.datadisplaytable[summary="Esta tabla lista los horarios de reunión calendarizados y los instructores asignados para esta clase.."] tbody tr td.dddefault')).map(r => r.innerText)
         )
-        matrix = []
+
+        matrix2 = []
         i = 0
-        vector = []//0-hora de inicio, 1-hora de fin, 2-letra, 3array
+        let h1, h2, dd, ii = []
         for (let d in data) {
+            let c = new clase()
             if (i == 4) {
-                ve = []
-                ve.push(data[d])
-                vector.push(ve)
+                ii = []
+                ii.push(data[d])
             } else {
                 if (i == 2) {
-                    vector.push(data[d])
+                    dd = data[d]
                 } else {
                     if (i == 1) {
                         let nuevo = data[d].split("-")
-                        vector.push(nuevo[0].trim())
-                        vector.push(nuevo[1].trim())
+                        h1 = nuevo[0].trim()
+                        h2 = nuevo[1].trim()
                     }
                 }
             }
             i++
             if (i == 7) {
-                if (verificar(vector, matrix)) {
-                    matrix.push(vector)
+                if (verificar(matrix2, h1, h2, dd, ii)) {
+                    let c = new clase(h1, h2, dd, ii)
+                    matrix2.push(c)
                 }
-                vector = []
                 i = 0
             }
         }
-        let lunes = []
-        let martes = []
-        let miercoles = []
-        let jueves = []
-        let viernes = []
-        let sabado = []
-        let domingo = []
+        let lunes2 = []
+        let martes2 = []
+        let miercoles2 = []
+        let jueves2 = []
+        let viernes2 = []
+        let sabado2 = []
+        let domingo2 = []
 
-        for (let i in matrix) {
-            if (matrix[i][2] === "V") {
-                viernes.push(matrix[i])
+        for (let i in matrix2) {
+            let o = new clases(matrix2[i].horainicial, matrix2[i].horafinal, matrix2[i].intervalos)
+            if (matrix2[i].dia === "V") {
+                viernes2.push(o)
             } else {
-                if (matrix[i][2] === "J") {
-                    jueves.push(matrix[i])
+                if (matrix2[i].dia === "J") {
+                    jueves2.push(o)
                 } else {
-                    if (matrix[i][2] === "I") {
-                        miercoles.push(matrix[i])
+                    if (matrix2[i].dia === "I") {
+                        miercoles2.push(o)
                     } else {
-                        if (matrix[i][2] === "M") {
-                            martes.push(matrix[i])
+                        if (matrix2[i].dia === "M") {
+                            martes2.push(o)
                         } else {
-                            if (matrix[i][2] === "L") {
-                                lunes.push(matrix[i])
+                            if (matrix2[i].dia === "L") {
+                                lunes2.push(o)
                             } else {
-                                if (matrix[i][2] === "D") {
-                                    domingo.push(matrix[i])
+                                if (matrix2[i].dia === "D") {
+                                    domingo2.push(o)
                                 } else {
-                                    if (matrix[i][2] === "S") {
-                                        sabado.push(matrix[i])
+                                    if (matrix2[i].dia === "S") {
+                                        sabado2.push(o)
                                     }
                                 }
                             }
@@ -105,34 +124,29 @@ async function run(user, pass) {
                 }
             }
         }
-        let horario = []
-        horario.push(lunes)
-        horario.push(martes)
-        horario.push(miercoles)
-        horario.push(jueves)
-        horario.push(viernes)
-        horario.push(sabado)
-        horario.push(domingo)
-        for (let i in horario) {
-            for (let j in horario[i]) {
-                horario[i][j].splice(2, 1)
-            }
-        }
-        return horario;
+
+        horario.push(lunes2)
+        horario.push(martes2)
+        horario.push(miercoles2)
+        horario.push(jueves2)
+        horario.push(viernes2)
+        horario.push(sabado2)
+        horario.push(domingo2)
+        let pages = await browser.pages();
+        pages.forEach(async (page) => await page.close());
     } catch (e) {
         console.log(e)
     } finally {
-        await browser.close()
     }
-    
 }
-function verificar(v, m) {
+
+function verificar(m, hi, hf, ddd, ii) {
     if (m.length == 0) {
         return true
     } else {
-        for (let i in matrix) {
-            if (matrix[i][0] == v[0] && matrix[i][1] == v[1] && matrix[i][2] == v[2]) {
-                matrix[i][3].push(v[3].toString())
+        for (let i in m) {
+            if (m[i].horainicial == hi && m[i].horafinal == hf && matrix2[i].dia == ddd) {
+                m[i].intervalos.push(ii)
                 return false
             }
         }
