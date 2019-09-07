@@ -4,66 +4,19 @@ const app = express()
 const db = require('mongodb').Db
 const MongoClient = require('mongodb').MongoClient;
 //const config=require('dotenv').config()
-class mongohandler {
-    constructor() {
-        this.client = new MongoClient("mongodb+srv://jaime:Rd2fFLksxOainVOu@holu-cluster-aj9p4.mongodb.net?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
-        this.dbName = 'holu-db'
-    }
-    connect() {
-        return new Promise((resolve, reject) => {
-            this.client.connect(err => {
-                if (err) {
-                    reject(err)
-                }
-                console.log('Connected')
-                resolve(this.client.db(this.dbName))
-            })
-        })
-    }
-    async buscar() {
-        return this.connect().then(db=>{
-            return db.collection('users').find({}).toArray();
-        })
-        
-    }
-}
+app.listen(3000);
+console.log('server started on port 3000');
 
-async function prueba(){
-    let bb=new mongohandler()
-    let c= await bb.buscar()
-    console.log(c)
-}
-//prueba()
 app.get('/:user/:pass', async function (req, res) {
     let user = req.params.user
     let pass = req.params.pass
     await run(user, pass);
-    res.send(horariojson)
-    
+    res.send("DONE!")
+    prueba()
 })
-app.listen(3000);
-console.log('server started on port 3000');
-let horario = []
-let horariojson=JSON.stringify(horario)
-class clase {
 
-    constructor(horai, horaf, dia, intervalos) {
-        this.horainicial = horai
-        this.horafinal = horaf
-        this.dia = dia
-        this.intervalos = intervalos
-    }
+let horario = [], lunes2 = [],martes2 = [], miercoles2 = [], jueves2 = [],viernes2 = [],sabado2 = [], domingo2 = []
 
-}
-class clases {
-
-    constructor(horai, horaf, intervalos) {
-        this.horainicial = horai
-        this.horafinal = horaf
-        this.intervalos = intervalos
-    }
-
-}
 async function run(user, pass) {
     const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
     try {
@@ -95,11 +48,12 @@ async function run(user, pass) {
 
         matrix2 = []
         i = 0
-        let h1, h2, dd, ii = []
+        let h1, h2, dd, ii = [],aux
         for (let d in data) {
             let c = new clase()
             if (i == 4) {
                 ii = []
+                aux=data[d]
                 ii.push(data[d])
             } else {
                 if (i == 2) {
@@ -114,20 +68,13 @@ async function run(user, pass) {
             }
             i++
             if (i == 7) {
-                if (verificar(matrix2, h1, h2, dd, ii)) {
+                if (verificar(matrix2, h1, h2, dd,aux)) {
                     let c = new clase(h1, h2, dd, ii)
                     matrix2.push(c)
                 }
                 i = 0
             }
         }
-        let lunes2 = []
-        let martes2 = []
-        let miercoles2 = []
-        let jueves2 = []
-        let viernes2 = []
-        let sabado2 = []
-        let domingo2 = []
 
         for (let i in matrix2) {
             let o = new clases(matrix2[i].horainicial, matrix2[i].horafinal, matrix2[i].intervalos)
@@ -166,7 +113,6 @@ async function run(user, pass) {
         horario.push(viernes2)
         horario.push(sabado2)
         horario.push(domingo2)
-        horariojson=JSON.stringify(horario)
         let pages = await browser.pages();
         pages.forEach(async (page) => await page.close());
     } catch (e) {
@@ -175,18 +121,77 @@ async function run(user, pass) {
     }
 }
 
-function verificar(m, hi, hf, ddd, ii) {
+function verificar(m, hi, hf, ddd,a) {
     if (m.length == 0) {
         return true
     } else {
         for (let i in m) {
             if (m[i].horainicial == hi && m[i].horafinal == hf && matrix2[i].dia == ddd) {
-                m[i].intervalos.push(ii)
+                m[i].intervalos.push(a)
                 return false
             }
         }
     }
     return true
+}
+async function prueba() {
+    let bb = new mongohandler()
+    let c = await bb.actualizar()
+}
+class mongohandler {
+    constructor() {
+        this.client = new MongoClient("mongodb+srv://jaime:Rd2fFLksxOainVOu@holu-cluster-aj9p4.mongodb.net?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+        this.dbName = 'holu-db'
+    }
+    connect() {
+        return new Promise((resolve, reject) => {
+            this.client.connect(err => {
+                if (err) {
+                    reject(err)
+                }
+                console.log('Connected')
+                resolve(this.client.db(this.dbName))
+            })
+        })
+    }
+    async buscar() {
+        return this.connect().then(db => {
+            return db.collection('users').find({}).toArray();
+        })
+    }
+    async actualizar() {
+        return this.connect().then(db => {
+            return db.collection('users').updateOne(
+                { nombre: 'Jaime Ramos' },
+                {
+                    $push: {
+                        horario:{
+                            $each:[lunes2,martes2,miercoles2,jueves2,viernes2,sabado2,domingo2]
+                        }
+                    }
+                }
+            )
+        })
+    }
+}
+class clase {
+
+    constructor(horai, horaf, dia, intervalos) {
+        this.horainicial = horai
+        this.horafinal = horaf
+        this.dia = dia
+        this.intervalos = intervalos
+    }
+
+}
+class clases {
+
+    constructor(horai, horaf, intervalos) {
+        this.horainicial = horai
+        this.horafinal = horaf
+        this.intervalos = intervalos
+    }
+
 }
 module.exports = app;
 //debo orientar todo esto a objetos
