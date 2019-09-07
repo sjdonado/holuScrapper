@@ -1,15 +1,50 @@
 const puppeteer = require('puppeteer');
 const express = require("express")
 const app = express()
+const db = require('mongodb').Db
+const MongoClient = require('mongodb').MongoClient;
+//const config=require('dotenv').config()
+class mongohandler {
+    constructor() {
+        this.client = new MongoClient("mongodb+srv://jaime:Rd2fFLksxOainVOu@holu-cluster-aj9p4.mongodb.net?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+        this.dbName = 'holu-db'
+    }
+    connect() {
+        return new Promise((resolve, reject) => {
+            this.client.connect(err => {
+                if (err) {
+                    reject(err)
+                }
+                console.log('Connected')
+                resolve(this.client.db(this.dbName))
+            })
+        })
+    }
+    async buscar() {
+        return this.connect().then(db=>{
+            return db.collection('users').find({}).toArray();
+        })
+        
+    }
+}
+
+async function prueba(){
+    let bb=new mongohandler()
+    let c= await bb.buscar()
+    console.log(c)
+}
+//prueba()
 app.get('/:user/:pass', async function (req, res) {
     let user = req.params.user
     let pass = req.params.pass
     await run(user, pass);
-    res.send(horario)
+    res.send(horariojson)
+    
 })
 app.listen(3000);
 console.log('server started on port 3000');
 let horario = []
+let horariojson=JSON.stringify(horario)
 class clase {
 
     constructor(horai, horaf, dia, intervalos) {
@@ -30,7 +65,7 @@ class clases {
 
 }
 async function run(user, pass) {
-    const browser = await puppeteer.launch({headless:false, args: ['--no-sandbox'] });
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
     try {
         const USERNAME_SELECTOR = '#UserID'
         const PASSWORD_SELECTOR = '#PIN > input[type=password]'
@@ -124,7 +159,6 @@ async function run(user, pass) {
                 }
             }
         }
-
         horario.push(lunes2)
         horario.push(martes2)
         horario.push(miercoles2)
@@ -132,6 +166,7 @@ async function run(user, pass) {
         horario.push(viernes2)
         horario.push(sabado2)
         horario.push(domingo2)
+        horariojson=JSON.stringify(horario)
         let pages = await browser.pages();
         pages.forEach(async (page) => await page.close());
     } catch (e) {
