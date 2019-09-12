@@ -14,6 +14,25 @@ app.get('/:user/:pass', async function (req, res) {
     res.send("DONE!")
     prueba()
 })
+app.get('/directRegister/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc
+    console.log("se conectaron")
+    let user = req.params.user
+    let pass = req.params.pass
+    let telefono=req.params.telefono
+    let u = req.params.universidad
+    let bb = new mongohandler()
+    let x=await bb.crearNuevoUsuario(user,pass,telefono,u)
+    console.log(x)
+})
+app.get('/login/:user/:pass', async function (req, res) {
+    console.log("se conectaron")
+    let user = req.params.user
+    let pass = req.params.pass
+    let bb = new mongohandler()
+    let x=await bb.buscar(user,pass)
+    console.log(x)
+    res.send(x)
+})
 
 let horario = [], lunes2 = [],martes2 = [], miercoles2 = [], jueves2 = [],viernes2 = [],sabado2 = [], domingo2 = []
 
@@ -154,9 +173,9 @@ class mongohandler {
             })
         })
     }
-    async buscar() {
+    async buscar(user,pass) {
         return this.connect().then(db => {
-            return db.collection('users').find({}).toArray();
+            return db.collection('users').findOne({usuario:user,contraseña:pass},{fields:{usuario:1}});
         })
     }
     async actualizar() {
@@ -173,6 +192,11 @@ class mongohandler {
             )
         })
     }
+ async crearNuevoUsuario(user,pass,tel,u){
+    return this.connect().then(db => {
+        return db.collection('users').insertOne({universidad:u,usuario:user,contraseña:pass,telefono:tel,horario:[]});
+    })
+ }
 }
 class clase {
 
