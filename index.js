@@ -1,40 +1,60 @@
 const puppeteer = require('puppeteer');
 const express = require("express")
 const app = express()
-const db = require('mongodb').Db
-const MongoClient = require('mongodb').MongoClient;
+const bcrypt = require('bcrypt')
+const mongohandler = require('./Mongolib/index')
 //const config=require('dotenv').config()
 app.listen(3000);
 console.log('server started on port 3000');
-
-app.get('/:user/:pass', async function (req, res) {
+app.get('/completeRegister/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
+    console.log("se conectaron a complete register")
+    let user = req.params.userApp
+    let pass = req.params.passApp
+    let number=req.params.telefono
+    let uni=req.params.universidad
+    let uniUser=req.params.userU
+    let uniPass=req.params.passU
+    await run(uniUser, uniPass);
+    res.send("DONE!")
+    const hashedpassword = await bcrypt.hash(pass, 10)
+    let c = await mongohandler.crearNuevoUsuarioConHorario(user,hashedpassword,number,uni,lunes2,martes2,miercoles2, jueves2, viernes2, sabado2, domingo2)
+})
+app.get('/:user/:pass', async function (req, res) {//para cuando una persona que al registrarse no quiso importar su horario y apenas ahora lo va a hacer
     let user = req.params.user
     let pass = req.params.pass
     await run(user, pass);
     res.send("DONE!")
-    prueba()
+    let c = await mongohandler.actualizar(user,lunes2,martes2,miercoles2, jueves2, viernes2, sabado2, domingo2)
 })
-app.get('/directRegister/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc
+app.get('/directRegister/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc y sin importar su horario con nuestro scrapper
     console.log("se conectaron")
     let user = req.params.user
     let pass = req.params.pass
-    let telefono=req.params.telefono
+    const hashedpassword = await bcrypt.hash(pass, 10)
+    let telefono = req.params.telefono
     let u = req.params.universidad
-    let bb = new mongohandler()
-    let x=await bb.crearNuevoUsuario(user,pass,telefono,u)
+    let x = await mongohandler.crearNuevoUsuario(user, hashedpassword, telefono, u)
     console.log(x)
 })
 app.get('/login/:user/:pass', async function (req, res) {
     console.log("se conectaron")
-    let user = req.params.user
+    let username = req.params.user
     let pass = req.params.pass
-    let bb = new mongohandler()
-    let x=await bb.buscar(user,pass)
-    console.log(x)
-    res.send(x)
+    mongohandler.buscar(username).then(function (user) {
+        return bcrypt.compare(pass, user.contraseña)
+    }).then(function (samePassword) {
+        if (!samePassword) {
+            res.send("No digitó la contraseña correcta")
+        } else {
+            res.send("Digitó la contraseña correcta");
+        }
+    }).catch(function (error) {
+        console.log("Error authenticating user: ");
+        console.log(error);
+    });
 })
 
-let horario = [], lunes2 = [],martes2 = [], miercoles2 = [], jueves2 = [],viernes2 = [],sabado2 = [], domingo2 = []
+let horario = [], lunes2 = [], martes2 = [], miercoles2 = [], jueves2 = [], viernes2 = [], sabado2 = [], domingo2 = []
 
 async function run(user, pass) {
     const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
@@ -67,12 +87,12 @@ async function run(user, pass) {
 
         matrix2 = []
         i = 0
-        let h1, h2, dd, ii = [],aux
+        let h1, h2, dd, ii = [], aux
         for (let d in data) {
             let c = new clase()
             if (i == 4) {
                 ii = []
-                aux=data[d]
+                aux = data[d]
                 ii.push(data[d])
             } else {
                 if (i == 2) {
@@ -87,7 +107,7 @@ async function run(user, pass) {
             }
             i++
             if (i == 7) {
-                if (verificar(matrix2, h1, h2, dd,aux)) {
+                if (verificar(matrix2, h1, h2, dd, aux)) {
                     let c = new clase(h1, h2, dd, ii)
                     matrix2.push(c)
                 }
@@ -140,7 +160,7 @@ async function run(user, pass) {
     }
 }
 
-function verificar(m, hi, hf, ddd,a) {
+function verificar(m, hi, hf, ddd, a) {
     if (m.length == 0) {
         return true
     } else {
@@ -153,51 +173,7 @@ function verificar(m, hi, hf, ddd,a) {
     }
     return true
 }
-async function prueba() {
-    let bb = new mongohandler()
-    let c = await bb.actualizar()
-}
-class mongohandler {
-    constructor() {
-        this.client = new MongoClient("mongodb+srv://jaime:Rd2fFLksxOainVOu@holu-cluster-aj9p4.mongodb.net?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
-        this.dbName = 'holu-db'
-    }
-    connect() {
-        return new Promise((resolve, reject) => {
-            this.client.connect(err => {
-                if (err) {
-                    reject(err)
-                }
-                console.log('Connected')
-                resolve(this.client.db(this.dbName))
-            })
-        })
-    }
-    async buscar(user,pass) {
-        return this.connect().then(db => {
-            return db.collection('users').findOne({usuario:user,contraseña:pass},{fields:{usuario:1}});
-        })
-    }
-    async actualizar() {
-        return this.connect().then(db => {
-            return db.collection('users').updateOne(
-                { nombre: 'Jaime Ramos' },
-                {
-                    $push: {
-                        horario:{
-                            $each:[lunes2,martes2,miercoles2,jueves2,viernes2,sabado2,domingo2]
-                        }
-                    }
-                }
-            )
-        })
-    }
- async crearNuevoUsuario(user,pass,tel,u){
-    return this.connect().then(db => {
-        return db.collection('users').insertOne({universidad:u,usuario:user,contraseña:pass,telefono:tel,horario:[]});
-    })
- }
-}
+
 class clase {
 
     constructor(horai, horaf, dia, intervalos) {
