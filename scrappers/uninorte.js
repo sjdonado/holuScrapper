@@ -102,6 +102,7 @@ async function run(user, pass) {
         horario.push(viernes2)
         horario.push(sabado2)
         horario.push(domingo2)
+        horasLibres(horario)
         let pages = await browser.pages();
         pages.forEach(async (page) => await page.close());
     } catch (e) {
@@ -130,8 +131,8 @@ function ordenar(arreglo) {
         if (arreglo[i].horainicial.includes("PM")) {
             vector[i] = arreglo[i].horainicial.substring(0, 5).trim().replace(':', '')
             vector[i] = vector[i] * 10000
-            let sr=arreglo[i].horainicial.substring(1,2)
-            if(sr===":"){
+            let sr = arreglo[i].horainicial.substring(1, 2)
+            if (sr === ":") {
                 vector[i] = vector[i] * 10
             }
         } else {
@@ -172,7 +173,61 @@ function quick_Sort(origArray) {
         return newArray.concat(quick_Sort(left), pivot, quick_Sort(right));
     }
 }
-
+function horasLibres(matriz) {//hacer comparaciones dia a dia para solo darle peso a las horas
+    let monday = [], tuesday = [], wednesday = [], thursday = [], friday = [], saturday = [], sunday = []
+    for (let i in matriz) {
+        let vector = matriz[i]
+        let horas = [630, 730, 830, 930, 1030, 1130, 123000, 130000, 230000, 330000, 430000, 530000, 630000, 730000, 830000]
+        let horas2 = []
+        let ii = 0
+        for (let j in vector) {
+            let numero1 = vector[j].horainicial.substring(0, 5).trim().replace(':', '')
+            let numero2 = vector[j].horafinal.substring(0, 5).trim().replace(':', '')
+            vii = vector[j].horainicial
+            vff = vector[j].horainicial
+            if (vii.includes("P")) {
+                numero1 = numero1 * 100
+                numero2 = numero2 * 1000
+                if (vii.substring(0, 2) !== "12") {
+                    numero1 = numero1 * 10
+                }
+            }
+            while (ii < horas.length && horas[ii] < numero2) {
+                if (!(horas[ii] >= numero1 && horas[ii] < numero2)) {
+                    horas2.push(reparseo(horas[ii]+""))
+                }
+                ii++
+            }
+        }
+        while (ii < horas.length) {
+            horas2.push(reparseo(horas[ii]+""))
+            ii++
+        }
+        console.log(horas2)
+    }
+    //console.log("lunes: " + monday)
+    //console.log("martes: " + tuesday)
+    //console.log("miercoles: " + wednesday)
+    //console.log("jueves: " + thursday)
+    //console.log("viernes: " + friday)
+    //console.log("sabado: " + saturday)
+    //console.log("domingo: " + sunday)
+}
+function reparseo(algo){
+    if(algo<1200){
+        if(algo.substring(0,1)==="1"){
+           return algo.substring(0,2)+":"+algo.substring(2,algo.length)+" AM"
+        }else{
+            return algo.substring(0,1)+":"+algo.substring(1,algo.length)+" AM"
+        }
+    }else{
+            if(algo.substring(0,1)==="12"){
+                return algo.substring(0,2)+":30 PM"
+            }else{
+                return algo.substring(0,1)+":30 PM"
+            }
+    }
+}
 class clase {
 
     constructor(horai, horaf, dia, intervalos) {
