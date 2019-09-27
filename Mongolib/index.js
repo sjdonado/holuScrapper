@@ -17,7 +17,7 @@ class Mongohandler {
     }
     async buscar(user) {
         return this.connect().then(db => {
-            return db.collection('users').findOne({ usuario: user }, { fields: { usuario: 1, contraseña: 1 } });
+            return db.collection('users').findOne({ usuario: user }, { usuario: 1, contraseña: 1});
         })
     }
     async actualizar(user, lunes2, martes2, miercoles2, jueves2, viernes2, sabado2, domingo2) {
@@ -36,12 +36,17 @@ class Mongohandler {
     }
     async crearNuevoUsuario(user, pass, tel, u) {
         return this.connect().then(db => {
-            return db.collection('users').insertOne({ universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [],horaslibres: []});
+            return db.collection('users').insertOne({ universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [], horaslibres: [] });
         })
     }
-    async crearNuevoUsuarioConHorario(user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo) {
+    async crearNuevoUsuarioConHorario(user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
         return this.connect().then(db => {
-            return db.collection('users').insertOne({ universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo] });
+            return db.collection('users').insertOne({ universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo], horaslibres: horaslibress });
+        })
+    }
+    async traerHorario(user) {
+        return this.connect().then(db => {
+            return db.collection('users').findOne({ usuario: user },{projection:{horaslibres:1}});
         })
     }
 }

@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 async function run(user, pass) {
-    horario = [], lunes2 = [], martes2 = [], miercoles2 = [], jueves2 = [], viernes2 = [], sabado2 = [], domingo2 = []
+    horario = [], lunes2 = [], martes2 = [], miercoles2 = [], jueves2 = [], viernes2 = [], sabado2 = [], domingo2 = [], thefinalone = []
     const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
     try {
         const USERNAME_SELECTOR = '#UserID'
@@ -17,7 +17,7 @@ async function run(user, pass) {
         await page.click(PASSWORD_SELECTOR);
         await page.keyboard.type(pass)
         await page.click('body > div.pagebodydiv > form > p > input[type=submit]')
-        await page.waitForNavigation()
+        await page.waitForNavigation() 
         await page.click(INFOACADEMICA_SELECTOR)
         await page.click(MATRICULA_SELECTOR)
         await page.click(HORARIO_SELECTOR)
@@ -28,7 +28,6 @@ async function run(user, pass) {
         const data = await page.evaluate(() =>
             Array.from(document.querySelectorAll('body div.pagebodydiv table.datadisplaytable[summary="Esta tabla lista los horarios de reunión calendarizados y los instructores asignados para esta clase.."] tbody tr td.dddefault')).map(r => r.innerText)
         )
-
         matrix2 = []
         i = 0
         let h1, h2, dd, ii = [], aux
@@ -102,13 +101,15 @@ async function run(user, pass) {
         horario.push(viernes2)
         horario.push(sabado2)
         horario.push(domingo2)
-        horasLibres(horario)
+        let freehours = horasLibres(horario)
+        thefinalone.push(horario)
+        thefinalone.push(freehours)
         let pages = await browser.pages();
         pages.forEach(async (page) => await page.close());
     } catch (e) {
         console.log(e)
     } finally {
-        return horario
+        return thefinalone
     }
 }
 
@@ -174,7 +175,7 @@ function quick_Sort(origArray) {
     }
 }
 function horasLibres(matriz) {//hacer comparaciones dia a dia para solo darle peso a las horas
-    let monday = [], tuesday = [], wednesday = [], thursday = [], friday = [], saturday = [], sunday = []
+    let ma = []
     for (let i in matriz) {
         let vector = matriz[i]
         let horas = [630, 730, 830, 930, 1030, 1130, 123000, 130000, 230000, 330000, 430000, 530000, 630000, 730000, 830000]
@@ -194,38 +195,36 @@ function horasLibres(matriz) {//hacer comparaciones dia a dia para solo darle pe
             }
             while (ii < horas.length && horas[ii] < numero2) {
                 if (!(horas[ii] >= numero1 && horas[ii] < numero2)) {
-                    horas2.push(reparseo(horas[ii]+""))
+                    horas2.push(reparseo(horas[ii] + ""))
                 }
                 ii++
             }
         }
         while (ii < horas.length) {
-            horas2.push(reparseo(horas[ii]+""))
+            horas2.push(reparseo(horas[ii] + ""))
             ii++
         }
-        console.log(horas2)
+        ma.push(horas2)
     }
-    //console.log("lunes: " + monday)
-    //console.log("martes: " + tuesday)
-    //console.log("miercoles: " + wednesday)
-    //console.log("jueves: " + thursday)
-    //console.log("viernes: " + friday)
-    //console.log("sabado: " + saturday)
-    //console.log("domingo: " + sunday)
+    return ma //retorno ya la matriz lista
 }
-function reparseo(algo){
-    if(algo<1200){
-        if(algo.substring(0,1)==="1"){
-           return algo.substring(0,2)+":"+algo.substring(2,algo.length)+" AM"
-        }else{
-            return algo.substring(0,1)+":"+algo.substring(1,algo.length)+" AM"
+function reparseo(algo) {
+    if (algo < 1200) {
+        if (algo.substring(0, 1) === "1") {
+             let obj=new otraClase(algo.substring(0, 2) + ":" + algo.substring(2, algo.length) + " AM")
+            return obj
+        } else {
+            let obj = new otraClase(algo.substring(0, 1) + ":" + algo.substring(1, algo.length) + " AM")
+            return obj
         }
-    }else{
-            if(algo.substring(0,1)==="12"){
-                return algo.substring(0,2)+":30 PM"
-            }else{
-                return algo.substring(0,1)+":30 PM"
-            }
+    } else {
+        if (algo.substring(0, 2) === "12") {
+            let obj = new otraClase(algo.substring(0, 2) + ":30 PM")
+            return obj
+        } else {
+            let obj = new otraClase(algo.substring(0, 1) + ":30 PM")
+            return obj
+        }
     }
 }
 class clase {
@@ -247,5 +246,26 @@ class clases {
     }
 
 }
+class otraClase{
+    constructor(lahora){
+        this.hora = lahora
+        this.amigos = []
+    }
+}
 
 module.exports = run
+//SIMON
+/*
+const browser = await puppeteer.launch({ headless: false, timeout: 0 });
+const page = await browser.newPage();
+await page.goto('https://www.unisimon.edu.co/portales/estudiantes');
+const USERNAME_SELECTOR = '#usuario'
+const PASSWORD_SELECTOR = '#clave'
+const BOTON_SELECTOR='body > div.w100.rel.bec.pt20.pb50 > div > div > div > fieldset > div.w75.dcenter.mt50.w100m > form > div > div.col-md-7 > div.fright.dtable.pad12.cwhite.lts2.b05.fw3.mt20.mrp10.fz10.poi.fnonem.mb30m'
+const CASI_SELECTOR='#opciones > div:nth-child(4) > font'
+await page.click(USERNAME_SELECTOR);
+await page.keyboard.type('juan.rosado')
+await page.click(PASSWORD_SELECTOR);
+await page.keyboard.type('Rose1896')
+await page.click(BOTON_SELECTOR);
+await page.click(CASI_SELECTOR)*/
