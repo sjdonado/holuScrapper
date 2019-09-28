@@ -1,4 +1,5 @@
 const MongoClient = require('mongodb').MongoClient;
+const ObjectId=require('mongodb').ObjectId
 class Mongohandler {
     constructor() {
         this.client = new MongoClient("mongodb+srv://jaime:Rd2fFLksxOainVOu@holu-cluster-aj9p4.mongodb.net?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
@@ -47,6 +48,11 @@ class Mongohandler {
     async traerHorario(user) {
         return this.connect().then(db => {
             return db.collection('users').findOne({ usuario: user },{projection:{horaslibres:1}});
+        })
+    }
+    async cambiarhoraslibres(user,horas){
+        return this.connect().then(db => {
+            return db.collection('users').updateOne({'_id':ObjectId(user)},{$set:{'horaslibres':horas}})
         })
     }
 }
