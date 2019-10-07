@@ -1,13 +1,26 @@
 const express = require("express")
 const app = express()
-const router =express.Router()
+const server = require('http').createServer(app)
+const router = express.Router()
+const sockets = require('socket.io')(server)
 const bcrypt = require('bcrypt')
 const mongohandler = require('./Mongolib/index')
 const scrapper = require('./scrappers/uninorte')
 const horasEnComun = require('./funcionalities/commonHours')
 //const config=require('dotenv').config()
-app.use(router)
+sockets.on('connect', socket => {
+    let arreglo=[]
+    console.log("se conectaron a este socket")
+    socket.on("message", msg => {
+        arreglo.push(msg)
+        console.log(arreglo)
+    })
+})
+server.listen(8080, function () {
+    console.log('servidor iniciado en 8080')
+})
 app.listen(3000);
+app.use(router)
 //OJO ESTOY AGREGANDO ELEMENTOS AL VECTOR DE HORARIO, SI LLAMA VARIAS A VECES A LA FUNCION SE VAN A AGREGAR LO EQUIVALENTE A MAS DIAS, PUEDE SER PERJUDICIAL
 console.log('server started on port 3000');
 router.post('/completeRegister/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
@@ -67,14 +80,14 @@ router.patch('/newFriend/:user1/:user2', async function (req, res) {//cuando agr
     let x = await mongohandler.buscar(user1)
     let xx = await mongohandler.buscar(user2)
     if (x !== null && xx !== null) {
-       let datosusuario1 =await mongohandler.traerHorario(user1)
-       let datosusuario2 =await mongohandler.traerHorario(user2)
-       let h1=datosusuario1.horaslibres
-       let id1=datosusuario1._id
-       let h2=datosusuario2.horaslibres
-       let id2=datosusuario2._id
-       horasEnComun(h1,h2,id1,id2)
-       res.send("petición exitosa")
+        let datosusuario1 = await mongohandler.traerHorario(user1)
+        let datosusuario2 = await mongohandler.traerHorario(user2)
+        let h1 = datosusuario1.horaslibres
+        let id1 = datosusuario1._id
+        let h2 = datosusuario2.horaslibres
+        let id2 = datosusuario2._id
+        horasEnComun(h1, h2, id1, id2)
+        res.send("petición exitosa")
     } else {
 
     }
