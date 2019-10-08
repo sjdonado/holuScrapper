@@ -9,11 +9,13 @@ const scrapper = require('./scrappers/uninorte')
 const horasEnComun = require('./funcionalities/commonHours')
 //const config=require('dotenv').config()
 sockets.on('connect', socket => {
-    let arreglo=[]
+    let arreglo = []
     console.log("se conectaron a este socket")
+
     socket.on("message", msg => {
         arreglo.push(msg)
         console.log(arreglo)
+        socket.broadcast.emit("message",msg)
     })
 })
 server.listen(8080, function () {
