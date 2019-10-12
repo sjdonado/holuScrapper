@@ -11,11 +11,10 @@ const horasEnComun = require('./funcionalities/commonHours')
 sockets.on('connect', socket => {
     let arreglo = []
     console.log("se conectaron a este socket")
-
     socket.on("message", msg => {
         arreglo.push(msg)
         console.log(arreglo)
-        socket.broadcast.emit("message",msg)
+        socket.broadcast.emit("message", msg)
     })
 })
 server.listen(8080, function () {
@@ -93,5 +92,14 @@ router.patch('/newFriend/:user1/:user2', async function (req, res) {//cuando agr
     } else {
 
     }
+})
+router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res) {
+    console.log("se conectaron a /newPostTablero/:fecha/:hora/:comentario")
+    let fecha = req.params.fecha
+    let hora = req.params.hora
+    let comentario = req.params.comentario
+    if (comentario)
+        await mongohandler.nuevoComentarioTablero(fecha, hora, comentario)
+        res.json("Done!")
 })
 module.exports = app;
