@@ -100,6 +100,28 @@ router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res
     let comentario = req.params.comentario
     if (comentario)
         await mongohandler.nuevoComentarioTablero(fecha, hora, comentario)
-        res.json("Done!")
+    res.json("Done!")
+})
+router.post('/newPostAnuncios/:fecha/:hora/:comentario/:user', async function (req, res) {
+    console.log("se conectaron a /newPostAnuncios/:fecha/:hora/:comentario/:user")
+    let fecha = req.params.fecha
+    let hora = req.params.hora
+    let comentario = req.params.comentario
+    let user = req.params.user
+    if (comentario)
+        await mongohandler.nuevoAnuncio(fecha, hora, comentario, user)
+    res.json("Done!")
+})
+router.get('/retreivePostsTablero', async function (req, res) {
+    console.log("se conectaron a /retreivePostsTablero")
+    let x = await mongohandler.traerPostsAnterioresTablero()
+    let xx=await x.toArray()
+    res.json(xx)
+})
+router.get('/retreivePostsAnuncios', async function (req, res) {
+    console.log("se conectaron a /retreivePostsAnuncios")
+    let x = await mongohandler.traerPostsAnterioresAnuncios()
+    let xx=await x.toArray()
+    res.json(xx)
 })
 module.exports = app;

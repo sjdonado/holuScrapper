@@ -60,5 +60,20 @@ class Mongohandler {
             return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment })
         })
     }
+    async nuevoAnuncio(f,h,comment,user){
+        return this.connect().then(db=>{
+            return db.collection('Anuncios').insertOne({fecha:f,hora:h,comentario:comment,usuario:user})
+        })
+    }
+    async traerPostsAnterioresTablero(){
+        return this.connect().then(db=>{
+            return db.collection('ElTableroPosts').find({}).limit(50)
+        })
+    }
+    async traerPostsAnterioresAnuncios(){
+        return this.connect().then(db=>{
+            return db.collection('Anuncios').find({}).limit(50)
+        })
+    }
 }
 module.exports = new Mongohandler()
