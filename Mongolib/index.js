@@ -21,6 +21,7 @@ class Mongohandler {
             return db.collection('users').findOne({ usuario: user }, { usuario: 1, contraseña: 1 });
         })
     }
+
     async actualizar(user, lunes2, martes2, miercoles2, jueves2, viernes2, sabado2, domingo2) {
         return this.connect().then(db => {
             return db.collection('users').updateOne(
@@ -60,19 +61,24 @@ class Mongohandler {
             return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment })
         })
     }
-    async nuevoAnuncio(f,h,comment,user){
-        return this.connect().then(db=>{
-            return db.collection('Anuncios').insertOne({fecha:f,hora:h,comentario:comment,usuario:user})
+    async nuevoAnuncio(f, h, comment, user) {
+        return this.connect().then(db => {
+            return db.collection('Anuncios').insertOne({ fecha: f, hora: h, comentario: comment, usuario: user })
         })
     }
-    async traerPostsAnterioresTablero(){
-        return this.connect().then(db=>{
+    async traerPostsAnterioresTablero() {
+        return this.connect().then(db => {
             return db.collection('ElTableroPosts').find({}).limit(50)
         })
     }
-    async traerPostsAnterioresAnuncios(){
-        return this.connect().then(db=>{
+    async traerPostsAnterioresAnuncios() {
+        return this.connect().then(db => {
             return db.collection('Anuncios').find({}).limit(50)
+        })
+    }
+    async insertarFoto(user,image) {
+        return this.connect().then(db => {
+            return db.collection('users').updateOne({'usuario':user},{ $set: {'direccionimagen':image}})
         })
     }
 }

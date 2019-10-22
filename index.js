@@ -4,10 +4,29 @@ const server = require('http').createServer(app)
 const router = express.Router()
 const sockets = require('socket.io')(server)
 const bcrypt = require('bcrypt')
+const multer = require('multer')
+const path = require('path')
 const mongohandler = require('./Mongolib/index')
 const scrapper = require('./scrappers/uninorte')
 const horasEnComun = require('./funcionalities/commonHours')
+const { Storage } = require('@google-cloud/storage')
+const fs = require('fs');
 //const config=require('dotenv').config()
+const gc = new Storage({
+    keyFilename: path.join(__dirname, "./clave/index.json"),
+    projectId: 'holu-256603'
+})
+const storage =
+    multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, 'uploads/')
+        },
+        filename: function (req, file, cb) {
+            cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
+        }
+    })
+
+const upload = multer({ storage: storage })
 sockets.on('connect', socket => {
     let arreglo = []
     console.log("se conectaron a este socket")
@@ -115,13 +134,34 @@ router.post('/newPostAnuncios/:fecha/:hora/:comentario/:user', async function (r
 router.get('/retreivePostsTablero', async function (req, res) {
     console.log("se conectaron a /retreivePostsTablero")
     let x = await mongohandler.traerPostsAnterioresTablero()
-    let xx=await x.toArray()
+    let xx = await x.toArray()
     res.json(xx)
 })
 router.get('/retreivePostsAnuncios', async function (req, res) {
     console.log("se conectaron a /retreivePostsAnuncios")
     let x = await mongohandler.traerPostsAnterioresAnuncios()
-    let xx=await x.toArray()
+    let xx = await x.toArray()
     res.json(xx)
+})
+router.post('/uploadImage', upload.single('file'), async function (req, res) {
+    console.log("se conectaron a /uploadingImage")
+    const gc = new Storage({
+        keyFilename: path.join(__dirname, "./clave/index.json"),
+        projectId: 'holu-256603'
+    })
+    const holuBucket = gc.bucket('primersegmentoholu')
+    const nombreArchivo = path.basename(path.join(__dirname, './uploads/' + req.file.filename))
+    const archivo = holuBucket.file(nombreArchivo)
+    await holuBucket
+        .upload(path.join(__dirname, './uploads/' + req.file.filename))
+        .then(() => {
+            archivo.makePublic()
+            mongohandler.insertarFoto("buelvas", "https://storage.googleapis.com/primersegmentoholu/" + req.file.filename)
+            fs.unlinkSync(path.join(__dirname, './uploads/' + req.file.filename))
+        })
+        .catch(err => {
+            console.error('ERROR:', err);
+        });
+    res.end()
 })
 module.exports = app;
