@@ -81,5 +81,15 @@ class Mongohandler {
             return db.collection('users').updateOne({'usuario':user},{ $set: {'direccionimagen':image}})
         })
     }
+    async traerFoto(user){
+        return this.connect().then(db => {
+            return db.collection('users').findOne({ usuario: user }, { projection: { direccionimagen: 1 } })
+        })
+    }
+    async traerHorasLibres(user){
+        return this.connect().then(db => {
+            return db.collection('users').findOne({ usuario: user }, { projection: { horaslibres: 1 } })
+        })
+    }
 }
 module.exports = new Mongohandler()

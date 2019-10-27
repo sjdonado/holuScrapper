@@ -11,22 +11,20 @@ const scrapper = require('./scrappers/uninorte')
 const horasEnComun = require('./funcionalities/commonHours')
 const { Storage } = require('@google-cloud/storage')
 const fs = require('fs');
+const bodyParser = require('body-parser')
 //const config=require('dotenv').config()
-const gc = new Storage({
-    keyFilename: path.join(__dirname, "./clave/index.json"),
-    projectId: 'holu-256603'
-})
 const storage =
     multer.diskStorage({
         destination: function (req, file, cb) {
             cb(null, 'uploads/')
         },
         filename: function (req, file, cb) {
-            cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
+            cb(null, Date.now() + path.extname(file.originalname))
         }
     })
 
 const upload = multer({ storage: storage })
+
 sockets.on('connect', socket => {
     let arreglo = []
     console.log("se conectaron a este socket")
@@ -40,6 +38,7 @@ server.listen(8080, function () {
     console.log('servidor iniciado en 8080')
 })
 app.listen(3000);
+app.use(bodyParser.json())
 app.use(router)
 //OJO ESTOY AGREGANDO ELEMENTOS AL VECTOR DE HORARIO, SI LLAMA VARIAS A VECES A LA FUNCION SE VAN A AGREGAR LO EQUIVALENTE A MAS DIAS, PUEDE SER PERJUDICIAL
 console.log('server started on port 3000');
@@ -143,25 +142,31 @@ router.get('/retreivePostsAnuncios', async function (req, res) {
     let xx = await x.toArray()
     res.json(xx)
 })
-router.post('/uploadImage', upload.single('file'), async function (req, res) {
+
+router.post('/uploadImage', upload.single('file'), async function (req, res) {//falta recibir el usuario
     console.log("se conectaron a /uploadingImage")
+    let urI=req.file.filename
     const gc = new Storage({
         keyFilename: path.join(__dirname, "./clave/index.json"),
         projectId: 'holu-256603'
     })
     const holuBucket = gc.bucket('primersegmentoholu')
-    const nombreArchivo = path.basename(path.join(__dirname, './uploads/' + req.file.filename))
+    const nombreArchivo = path.basename(path.join(__dirname, './uploads/' +urI))
     const archivo = holuBucket.file(nombreArchivo)
     await holuBucket
-        .upload(path.join(__dirname, './uploads/' + req.file.filename))
+        .upload(path.join(__dirname, './uploads/'+urI))
         .then(() => {
             archivo.makePublic()
-            mongohandler.insertarFoto("buelvas", "https://storage.googleapis.com/primersegmentoholu/" + req.file.filename)
-            fs.unlinkSync(path.join(__dirname, './uploads/' + req.file.filename))
+            mongohandler.insertarFoto("buelvas", "https://storage.googleapis.com/primersegmentoholu/" +urI)
+            fs.unlinkSync(path.join(__dirname, './uploads/' + urI))
         })
         .catch(err => {
             console.error('ERROR:', err);
         });
     res.end()
+})
+router.get('/traerHorasLibres/:user', async function(req,res){
+    console.log("se conectaron a /traerHorasLibres/:user")
+    let user=req.params.user
 })
 module.exports = app;
