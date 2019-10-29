@@ -42,8 +42,9 @@ app.use(bodyParser.json())
 app.use(router)
 //OJO ESTOY AGREGANDO ELEMENTOS AL VECTOR DE HORARIO, SI LLAMA VARIAS A VECES A LA FUNCION SE VAN A AGREGAR LO EQUIVALENTE A MAS DIAS, PUEDE SER PERJUDICIAL
 console.log('server started on port 3000');
-router.post('/completeRegister/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
+router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
     console.log("se conectaron a complete register")
+    let name=req.params.name
     let user = req.params.userApp
     let pass = req.params.passApp
     let number = req.params.telefono
@@ -54,7 +55,7 @@ router.post('/completeRegister/:userApp/:passApp/:telefono/:universidad/:userU/:
     const vector = solucion[0]
     res.send("DONE!")
     const hashedpassword = await bcrypt.hash(pass, 10)
-    let c = await mongohandler.crearNuevoUsuarioConHorario(user, hashedpassword, number, uni, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6], solucion[1])
+    let c = await mongohandler.crearNuevoUsuarioConHorario(name,user, hashedpassword, number, uni, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6], solucion[1])
 })
 router.patch('/agregarhorario/:Appuser/:universityUser/:universityPass', async function (req, res) {//para cuando una persona que al registrarse no quiso importar su horario y apenas ahora lo va a hacer
     console.log("se conectaron a agregarhorario/:Appuser/:universityUser/:universityPass")
@@ -65,14 +66,15 @@ router.patch('/agregarhorario/:Appuser/:universityUser/:universityPass', async f
     res.json("DONE!")
     let c = await mongohandler.actualizar(user, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6])//falta borrar si es que hay el horario anterior
 })
-router.post('/directRegister/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc y sin importar su horario con nuestro scrapper
+router.post('/directRegister/:name/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc y sin importar su horario con nuestro scrapper
     console.log("se conectaron a /directRegister/:user/:pass/:telefono/:universidad")
+    let name=req.params.name
     let user = req.params.user
     let pass = req.params.pass
     const hashedpassword = await bcrypt.hash(pass, 10)
     let telefono = req.params.telefono
     let u = req.params.universidad
-    let x = await mongohandler.crearNuevoUsuario(user, hashedpassword, telefono, u)
+    let x = await mongohandler.crearNuevoUsuario(name,user, hashedpassword, telefono, u)
     console.log(x)
 })
 router.get('/login/:user/:pass', async function (req, res) {//tratando de entrar a la aplicación
@@ -145,19 +147,19 @@ router.get('/retreivePostsAnuncios', async function (req, res) {
 
 router.post('/uploadImage', upload.single('file'), async function (req, res) {//falta recibir el usuario
     console.log("se conectaron a /uploadingImage")
-    let urI=req.file.filename
+    let urI = req.file.filename
     const gc = new Storage({
         keyFilename: path.join(__dirname, "./clave/index.json"),
         projectId: 'holu-256603'
     })
     const holuBucket = gc.bucket('primersegmentoholu')
-    const nombreArchivo = path.basename(path.join(__dirname, './uploads/' +urI))
+    const nombreArchivo = path.basename(path.join(__dirname, './uploads/' + urI))
     const archivo = holuBucket.file(nombreArchivo)
     await holuBucket
-        .upload(path.join(__dirname, './uploads/'+urI))
+        .upload(path.join(__dirname, './uploads/' + urI))
         .then(() => {
             archivo.makePublic()
-            mongohandler.insertarFoto("buelvas", "https://storage.googleapis.com/primersegmentoholu/" +urI)
+            mongohandler.insertarFoto("buelvas", "https://storage.googleapis.com/primersegmentoholu/" + urI)
             fs.unlinkSync(path.join(__dirname, './uploads/' + urI))
         })
         .catch(err => {
@@ -165,8 +167,16 @@ router.post('/uploadImage', upload.single('file'), async function (req, res) {//
         });
     res.end()
 })
-router.get('/traerHorasLibres/:user', async function(req,res){
+router.get('/traerHorasLibres/:user', async function (req, res) {
     console.log("se conectaron a /traerHorasLibres/:user")
-    let user=req.params.user
+    let user = req.params.user
+    let x = await mongohandler.traerHorasLibres(user)
+    res.send(x)
+})
+router.get('/traerInfoAmigo/:amigo', async function (req, res) {
+    console.log("se conectaron a /traerInfoAmigos")
+    let amigo = req.params.amigo
+    let x = await mongohandler.traerInfoAmigos(amigo)
+    res.send(x)
 })
 module.exports = app;

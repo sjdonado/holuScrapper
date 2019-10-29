@@ -36,14 +36,14 @@ class Mongohandler {
             )
         })
     }
-    async crearNuevoUsuario(user, pass, tel, u) {
+    async crearNuevoUsuario(name,user, pass, tel, u) {
         return this.connect().then(db => {
-            return db.collection('users').insertOne({ universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [], horaslibres: [] });
+            return db.collection('users').insertOne({ nombre:name,universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [], horaslibres: [] });
         })
     }
-    async crearNuevoUsuarioConHorario(user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
+    async crearNuevoUsuarioConHorario(name,user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
         return this.connect().then(db => {
-            return db.collection('users').insertOne({ universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo], horaslibres: horaslibress });
+            return db.collection('users').insertOne({nombre:name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo], horaslibres: horaslibress });
         })
     }
     async traerHorario(user) {
@@ -76,19 +76,19 @@ class Mongohandler {
             return db.collection('Anuncios').find({}).limit(50)
         })
     }
-    async insertarFoto(user,image) {
+    async insertarFoto(user, image) {
         return this.connect().then(db => {
-            return db.collection('users').updateOne({'usuario':user},{ $set: {'direccionimagen':image}})
+            return db.collection('users').updateOne({ 'usuario': user }, { $set: { 'direccionimagen': image } })
         })
     }
-    async traerFoto(user){
+    async traerInfoAmigos(id) {//crear el campo nombre en mongo atlas y esta función debe devolver dirección de imagen, universidad y nombre(por ahora +3usuario)
         return this.connect().then(db => {
-            return db.collection('users').findOne({ usuario: user }, { projection: { direccionimagen: 1 } })
+            return db.collection('users').findOne({ _id: ObjectId(id)}, { projection: { direccionimagen: 1, _id: 0, universidad: 1, usuario: 1 } })
         })
     }
-    async traerHorasLibres(user){
+    async traerHorasLibres(user) {
         return this.connect().then(db => {
-            return db.collection('users').findOne({ usuario: user }, { projection: { horaslibres: 1 } })
+            return db.collection('users').findOne({ usuario: user }, { projection: { horaslibres: 1, _id: 0 } })
         })
     }
 }
