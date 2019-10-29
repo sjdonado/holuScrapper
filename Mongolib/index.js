@@ -36,14 +36,14 @@ class Mongohandler {
             )
         })
     }
-    async crearNuevoUsuario(name,user, pass, tel, u) {
+    async crearNuevoUsuario(name, user, pass, tel, u) {
         return this.connect().then(db => {
-            return db.collection('users').insertOne({ nombre:name,universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [], horaslibres: [] });
+            return db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [], horaslibres: [], amigos: [] });
         })
     }
-    async crearNuevoUsuarioConHorario(name,user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
+    async crearNuevoUsuarioConHorario(name, user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
         return this.connect().then(db => {
-            return db.collection('users').insertOne({nombre:name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo], horaslibres: horaslibress });
+            return db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo], horaslibres: horaslibress, amigos: [] });
         })
     }
     async traerHorario(user) {
@@ -51,7 +51,7 @@ class Mongohandler {
             return db.collection('users').findOne({ usuario: user }, { projection: { horaslibres: 1 } });
         })
     }
-    async cambiarhoraslibres(user, horas) {
+    async cambiarhoraslibres(user, horas) {//agregar un amigo al vector de amigos de horaslibres de cada usuario
         return this.connect().then(db => {
             return db.collection('users').updateOne({ '_id': ObjectId(user) }, { $set: { 'horaslibres': horas } })
         })
@@ -81,14 +81,31 @@ class Mongohandler {
             return db.collection('users').updateOne({ 'usuario': user }, { $set: { 'direccionimagen': image } })
         })
     }
+    async traerfoto(user) {
+        return this.connect().then(db => {
+            return db.collection('users').findOne({ 'usuario': user }, { projection: { direccionimagen: 1, _id: 0 } })
+        })
+    }
     async traerInfoAmigos(id) {//crear el campo nombre en mongo atlas y esta función debe devolver dirección de imagen, universidad y nombre(por ahora +3usuario)
         return this.connect().then(db => {
-            return db.collection('users').findOne({ _id: ObjectId(id)}, { projection: { direccionimagen: 1, _id: 0, universidad: 1, usuario: 1 } })
+            return db.collection('users').findOne({ _id: ObjectId(id) }, { projection: { direccionimagen: 1, _id: 0, universidad: 1, usuario: 1 } })
         })
     }
     async traerHorasLibres(user) {
         return this.connect().then(db => {
             return db.collection('users').findOne({ usuario: user }, { projection: { horaslibres: 1, _id: 0 } })
+        })
+    }
+    async buscarUsuario(user) {//para que al momento de registrarse se verifique que ese usuario que quiere la persona no haya sido tomado anteriormente
+        return this.connect().then(db => {
+            return db.collection('users').findOne({ usuario: user }, { projection: { usuario: 1, _id: 0 } })
+        })
+    }
+    async nuevoAmigo(user1, user2) {
+        return this.connect().then(db => {
+            return db.collection('users').updateOne({ usuario: user1 }, { $push: { amigos: user2 } }).then(db => {
+                return db.collection('users').updateOne({ usuario: user2 }, { $push: { amigos: user1 } })
+            })
         })
     }
 }

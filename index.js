@@ -44,18 +44,24 @@ app.use(router)
 console.log('server started on port 3000');
 router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
     console.log("se conectaron a complete register")
-    let name=req.params.name
+    let name = req.params.name
     let user = req.params.userApp
     let pass = req.params.passApp
     let number = req.params.telefono
     let uni = req.params.universidad
     let uniUser = req.params.userU
     let uniPass = req.params.passU
-    const solucion = await scrapper(uniUser, uniPass);
-    const vector = solucion[0]
-    res.send("DONE!")
-    const hashedpassword = await bcrypt.hash(pass, 10)
-    let c = await mongohandler.crearNuevoUsuarioConHorario(name,user, hashedpassword, number, uni, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6], solucion[1])
+    let existencia = await mongohandler.buscarUsuario(user)
+    if (existencia) {
+        res.json("usuario existente")
+    } else {
+        const solucion = await scrapper(uniUser, uniPass);
+        const vector = solucion[0]
+        const hashedpassword = await bcrypt.hash(pass, 10)
+        let c = await mongohandler.crearNuevoUsuarioConHorario(name, user, hashedpassword, number, uni, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6], solucion[1])
+        res.json("DONE!")
+    }
+
 })
 router.patch('/agregarhorario/:Appuser/:universityUser/:universityPass', async function (req, res) {//para cuando una persona que al registrarse no quiso importar su horario y apenas ahora lo va a hacer
     console.log("se conectaron a agregarhorario/:Appuser/:universityUser/:universityPass")
@@ -63,19 +69,25 @@ router.patch('/agregarhorario/:Appuser/:universityUser/:universityPass', async f
     let userU = req.params.universityUser
     let passU = req.params.universityPass
     const vector = await scrapper(userU, passU)
-    res.json("DONE!")
     let c = await mongohandler.actualizar(user, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6])//falta borrar si es que hay el horario anterior
+    res.json("DONE!")
 })
 router.post('/directRegister/:name/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc y sin importar su horario con nuestro scrapper
     console.log("se conectaron a /directRegister/:user/:pass/:telefono/:universidad")
-    let name=req.params.name
+    let name = req.params.name
     let user = req.params.user
     let pass = req.params.pass
-    const hashedpassword = await bcrypt.hash(pass, 10)
-    let telefono = req.params.telefono
-    let u = req.params.universidad
-    let x = await mongohandler.crearNuevoUsuario(name,user, hashedpassword, telefono, u)
-    console.log(x)
+    let existencia = await mongohandler.buscarUsuario(user)
+    if (existencia) {
+        res.json("usuario existente")
+    } else {
+        const hashedpassword = await bcrypt.hash(pass, 10)
+        let telefono = req.params.telefono
+        let u = req.params.universidad
+        let x = await mongohandler.crearNuevoUsuario(name, user, hashedpassword, telefono, u)
+        res.json("DONE!")
+    }
+
 })
 router.get('/login/:user/:pass', async function (req, res) {//tratando de entrar a la aplicación
     console.log("se conectaron a login/:user/:pass")
