@@ -102,10 +102,17 @@ class Mongohandler {
         })
     }
     async nuevoAmigo(user1, user2) {
+        console.log(user1,user2)
+        this.connect().then(db => {
+            db.collection('users').updateOne({ '_id': ObjectId(user1) }, { $push: { amigos: user2 } })
+        })
+       return this.connect().then(db => {
+            return db.collection('users').updateOne({ '_id': ObjectId(user2) }, { $push: { amigos: user1 } })
+        })
+    }
+    async traerTodaInfoUsuario(user) {
         return this.connect().then(db => {
-            return db.collection('users').updateOne({ usuario: user1 }, { $push: { amigos: user2 } }).then(db => {
-                return db.collection('users').updateOne({ usuario: user2 }, { $push: { amigos: user1 } })
-            })
+            return db.collection('users').findOne({ usuario: user })
         })
     }
 }

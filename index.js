@@ -97,14 +97,20 @@ router.get('/login/:user/:pass', async function (req, res) {//tratando de entrar
         return bcrypt.compare(pass, user.contraseña)
     }).then(function (samePassword) {
         if (!samePassword) {
-            res.send("No digitó la contraseña correcta")
+            res.json({ "result": false })
         } else {
-            res.send("Digitó la contraseña correcta");
+            res.json({ "result": true });
         }
     }).catch(function (error) {
         console.log("Error authenticating user: ");
         console.log(error);
     });
+})
+router.get('/traerTodaLaInfoUsuario/:user', async function (req, res) {
+    console.log("se conectaron a /login/traerTodaLaInfoUsuario/:user")
+    let user=req.params.user
+    let x=await mongohandler.traerTodaInfoUsuario(user)
+    res.json(x)
 })
 router.patch('/newFriend/:user1/:user2', async function (req, res) {//cuando agrega a un amigo y se encuentran sus horas libres en común
     console.log("se conectaron a /newFriend/:user1/:user2")
@@ -157,9 +163,10 @@ router.get('/retreivePostsAnuncios', async function (req, res) {
     res.json(xx)
 })
 
-router.post('/uploadImage', upload.single('file'), async function (req, res) {//falta recibir el usuario
+router.post('/uploadImage/:user', upload.single('file'), async function (req, res) {//falta recibir el usuario
     console.log("se conectaron a /uploadingImage")
     let urI = req.file.filename
+    let user=req.params.user
     const gc = new Storage({
         keyFilename: path.join(__dirname, "./clave/index.json"),
         projectId: 'holu-256603'
@@ -171,7 +178,7 @@ router.post('/uploadImage', upload.single('file'), async function (req, res) {//
         .upload(path.join(__dirname, './uploads/' + urI))
         .then(() => {
             archivo.makePublic()
-            mongohandler.insertarFoto("buelvas", "https://storage.googleapis.com/primersegmentoholu/" + urI)
+            mongohandler.insertarFoto(user, "https://storage.googleapis.com/primersegmentoholu/" + urI)
             fs.unlinkSync(path.join(__dirname, './uploads/' + urI))
         })
         .catch(err => {

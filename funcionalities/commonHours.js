@@ -61,9 +61,9 @@ async function Main(m1, m2, user1, user2) {
             }
         }
     }
-    mongohandler.cambiarhoraslibres(user1,m1)
-    mongohandler.cambiarhoraslibres(user2,m2)
-    mongohandler.nuevoAmigo(user1,user2)
+    let x = await mongohandler.cambiarhoraslibres(user1, m1)
+    let xx = await mongohandler.cambiarhoraslibres(user2, m2)
+    let xxx = await mongohandler.nuevoAmigo(user1, user2)
 }
 
 function horasEnComun(m1, m2) {
