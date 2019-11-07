@@ -138,7 +138,7 @@ router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res
     let comentario = req.params.comentario
     if (comentario)
         await mongohandler.nuevoComentarioTablero(fecha, hora, comentario)
-    res.json("Done!")
+        res.json("Done!")
 })
 router.post('/newPostAnuncios/:fecha/:hora/:comentario/:user', async function (req, res) {
     console.log("se conectaron a /newPostAnuncios/:fecha/:hora/:comentario/:user")
@@ -148,7 +148,7 @@ router.post('/newPostAnuncios/:fecha/:hora/:comentario/:user', async function (r
     let user = req.params.user
     if (comentario)
         await mongohandler.nuevoAnuncio(fecha, hora, comentario, user)
-    res.json("Done!")
+        res.json("Done!")
 })
 router.get('/retreivePostsTablero', async function (req, res) {
     console.log("se conectaron a /retreivePostsTablero")
@@ -190,12 +190,18 @@ router.get('/traerHorasLibres/:user', async function (req, res) {
     console.log("se conectaron a /traerHorasLibres/:user")
     let user = req.params.user
     let x = await mongohandler.traerHorasLibres(user)
-    res.send(x)
+    res.json(x)
 })
 router.get('/traerInfoAmigo/:amigo', async function (req, res) {
     console.log("se conectaron a /traerInfoAmigos")
     let amigo = req.params.amigo
     let x = await mongohandler.traerInfoAmigos(amigo)
-    res.send(x)
+    res.json(x)
+})
+router.get('/traerSoloFoto/:user', async function(req,res){
+    console.log("se conectaron a /traerSoloFoto/:user")
+    let user=req.params.user
+    let x=await mongohandler.traerfoto(user)
+    res.json(x)
 })
 module.exports = app;
