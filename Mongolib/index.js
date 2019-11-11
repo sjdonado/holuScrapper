@@ -60,12 +60,12 @@ class Mongohandler {
     }
     async nuevoComentarioTablero(f, h, comment) {
         return this.connect().then(db => {
-            return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment })
+            return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment, respuestas: [] })
         })
     }
     async nuevoAnuncio(f, h, comment, user) {
         return this.connect().then(db => {
-            return db.collection('Anuncios').insertOne({ fecha: f, hora: h, comentario: comment, usuario: user })
+            return db.collection('Anuncios').insertOne({ fecha: f, hora: h, comentario: comment, usuario: user, respuestas: [] })
         })
     }
     async traerPostsAnterioresTablero() {
@@ -86,6 +86,11 @@ class Mongohandler {
     async traerfoto(user) {
         return this.connect().then(db => {
             return db.collection('users').findOne({ 'usuario': user }, { projection: { direccionimagen: 1, _id: 0 } })
+        })
+    }
+    async traerFotoPorId(id) {
+        return this.connect().then(db => {
+            return db.collection('users').findOne({ '_id': ObjectId(id) }, { projection: { direccionimagen: 1, usuario: 1, _id: 0 } })
         })
     }
     async traerInfoAmigos(id) {//crear el campo nombre en mongo atlas y esta función debe devolver dirección de imagen, universidad y nombre(por ahora +3usuario)
@@ -114,6 +119,17 @@ class Mongohandler {
     async traerTodaInfoUsuario(user) {
         return this.connect().then(db => {
             return db.collection('users').findOne({ usuario: user })
+        })
+    }
+    async traerRespuestasPostAnuncios(id) {
+        return this.connect().then(db => {
+            return db.collection('Anuncios').findOne({ '_id': ObjectId(id) }, { projection: { respuestas: 1, _id: 0 } })
+        })
+    }
+    async nuevaRespuestaAnuncio(idAnuncio, objeto) {
+        console.log(objeto.userID)
+        return this.connect().then(db => {
+            return db.collection('Anuncios').updateOne({ '_id': ObjectId(idAnuncio) }, { $push: { respuestas: objeto } })
         })
     }
 }

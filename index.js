@@ -7,10 +7,11 @@ const bcrypt = require('bcrypt')
 const multer = require('multer')
 const path = require('path')
 const mongohandler = require('./Mongolib/index')
-const scrapper = require('./scrappers/uninorte')
+const scrapper = require('./scrappers/uninorte').default
 const horasEnComun = require('./funcionalities/commonHours')
 const { Storage } = require('@google-cloud/storage')
 const fs = require('fs');
+const ObjectId = require('mongodb').ObjectId
 const bodyParser = require('body-parser')
 //const config=require('dotenv').config()
 const storage =
@@ -108,8 +109,8 @@ router.get('/login/:user/:pass', async function (req, res) {//tratando de entrar
 })
 router.get('/traerTodaLaInfoUsuario/:user', async function (req, res) {
     console.log("se conectaron a /login/traerTodaLaInfoUsuario/:user")
-    let user=req.params.user
-    let x=await mongohandler.traerTodaInfoUsuario(user)
+    let user = req.params.user
+    let x = await mongohandler.traerTodaInfoUsuario(user)
     res.json(x)
 })
 router.patch('/newFriend/:user1/:user2', async function (req, res) {//cuando agrega a un amigo y se encuentran sus horas libres en común
@@ -138,7 +139,7 @@ router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res
     let comentario = req.params.comentario
     if (comentario)
         await mongohandler.nuevoComentarioTablero(fecha, hora, comentario)
-        res.json("Done!")
+    res.json("Done!")
 })
 router.post('/newPostAnuncios/:fecha/:hora/:comentario/:user', async function (req, res) {
     console.log("se conectaron a /newPostAnuncios/:fecha/:hora/:comentario/:user")
@@ -148,7 +149,7 @@ router.post('/newPostAnuncios/:fecha/:hora/:comentario/:user', async function (r
     let user = req.params.user
     if (comentario)
         await mongohandler.nuevoAnuncio(fecha, hora, comentario, user)
-        res.json("Done!")
+    res.json("Done!")
 })
 router.get('/retreivePostsTablero', async function (req, res) {
     console.log("se conectaron a /retreivePostsTablero")
@@ -166,7 +167,7 @@ router.get('/retreivePostsAnuncios', async function (req, res) {
 router.post('/uploadImage/:user', upload.single('file'), async function (req, res) {//falta recibir el usuario
     console.log("se conectaron a /uploadingImage")
     let urI = req.file.filename
-    let user=req.params.user
+    let user = req.params.user
     const gc = new Storage({
         keyFilename: path.join(__dirname, "./clave/index.json"),
         projectId: 'holu-256603'
@@ -198,10 +199,37 @@ router.get('/traerInfoAmigo/:amigo', async function (req, res) {
     let x = await mongohandler.traerInfoAmigos(amigo)
     res.json(x)
 })
-router.get('/traerSoloFoto/:user', async function(req,res){
+router.get('/traerSoloFoto/:user', async function (req, res) {
     console.log("se conectaron a /traerSoloFoto/:user")
-    let user=req.params.user
-    let x=await mongohandler.traerfoto(user)
+    let user = req.params.user
+    let x = await mongohandler.traerfoto(user)
     res.json(x)
+})
+router.get('/traerSoloFotoPorId/:Id', async function (req, res) {
+    console.log("se conectaron a /traerSoloFotoPorId/:Id")
+    let Id = req.params.Id
+    let x = await mongohandler.traerFotoPorId(Id)
+    res.json(x)
+})
+router.get('/traerRespuestasPostAnuncios/:ID', async function (req, res) {
+    console.log("se conectaron a traerRespuestasPostAnuncios/:ID")
+    let ID = req.params.ID
+    let x = await mongohandler.traerRespuestasPostAnuncios(ID)
+    res.json(x)
+})
+router.post('/nuevaRespuestaAnuncio/:anuncioID/:userID/:respuesta', async function (req, res) {
+    console.log("se conectaron a nuevaRespuestaAnuncio/:anuncioID/:userID")
+    let anuncioID = req.params.anuncioID
+    let userID = req.params.userID
+    let respuesta = req.params.respuesta
+    class clase {
+        constructor(respuesta, userID) {
+            this.mensaje = respuesta
+            this.userID = ObjectId(userID)
+        }
+    }
+    let o = new clase(respuesta, userID)
+    let x = await mongohandler.nuevaRespuestaAnuncio(anuncioID, o)
+    res.json("Done!")
 })
 module.exports = app;
