@@ -232,4 +232,12 @@ router.post('/nuevaRespuestaAnuncio/:anuncioID/:userID/:respuesta', async functi
     let x = await mongohandler.nuevaRespuestaAnuncio(anuncioID, o)
     res.json("Done!")
 })
+router.patch('/nuevoLikeAnuncio/:anuncioID/:userID', async function (req, res) {
+    console.log("se conectaron a /nuevoLikeAnuncio/:anuncioID/:userID")
+
+})
+router.patch('/nuevoDislikeAnuncio/:anuncioID/:userID', async function (req, res) {
+    console.log("se conectaron a /nuevoDislikeAnuncio/:anuncioID/:userID")
+
+})
 module.exports = app;
