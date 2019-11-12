@@ -253,7 +253,7 @@ router.get('/traerAnunciosPorFiltros/:arreglo', async function (req, res) {
     await Promise.all(arreglo.map(async (element, index) => {
         let x = await mongohandler.traerAnunciosPorFiltros(element)
         let xx = await x.toArray()
-        arre[index] = xx
+        arre[index] = xx[0]
         Promise.resolve('ok')
     }))
     res.json(arre)
