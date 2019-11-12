@@ -132,24 +132,30 @@ router.patch('/newFriend/:user1/:user2', async function (req, res) {//cuando agr
 
     }
 })
-router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res) {
+router.post('/newPostTablero/:fecha/:hora/:comentario/:tag', async function (req, res) {
     console.log("se conectaron a /newPostTablero/:fecha/:hora/:comentario")
     let fecha = req.params.fecha
     let hora = req.params.hora
     let comentario = req.params.comentario
-    if (comentario)
-        await mongohandler.nuevoComentarioTablero(fecha, hora, comentario)
-    res.json("Done!")
+    let tag = req.params.tag
+    if (comentario) {
+        await mongohandler.nuevoComentarioTablero(fecha, hora, comentario, tag)
+        res.json("Done!")
+    }
+
 })
-router.post('/newPostAnuncios/:fecha/:hora/:comentario/:user', async function (req, res) {
+router.post('/newPostAnuncios/:fecha/:hora/:comentario/:user/:tag', async function (req, res) {
     console.log("se conectaron a /newPostAnuncios/:fecha/:hora/:comentario/:user")
     let fecha = req.params.fecha
     let hora = req.params.hora
     let comentario = req.params.comentario
     let user = req.params.user
-    if (comentario)
-        await mongohandler.nuevoAnuncio(fecha, hora, comentario, user)
-    res.json("Done!")
+    let tag = req.params.tag
+    if (comentario) {
+        await mongohandler.nuevoAnuncio(fecha, hora, comentario, user, tag)
+        res.json("Done!")
+    }
+
 })
 router.get('/retreivePostsTablero', async function (req, res) {
     console.log("se conectaron a /retreivePostsTablero")
@@ -239,5 +245,17 @@ router.patch('/nuevoLikeAnuncio/:anuncioID/:userID', async function (req, res) {
 router.patch('/nuevoDislikeAnuncio/:anuncioID/:userID', async function (req, res) {
     console.log("se conectaron a /nuevoDislikeAnuncio/:anuncioID/:userID")
 
+})
+router.get('/traerAnunciosPorFiltros/:arreglo', async function (req, res) {
+    console.log("se conectaron a /traerAnunciosPorFiltros/:arreglo")
+    let arreglo = req.params.arreglo.split(',')
+    let arre = []
+    await Promise.all(arreglo.map(async (element, index) => {
+        let x = await mongohandler.traerAnunciosPorFiltros(element)
+        let xx = await x.toArray()
+        arre[index] = xx
+        Promise.resolve('ok')
+    }))
+    res.json(arre)
 })
 module.exports = app;

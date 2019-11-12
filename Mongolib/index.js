@@ -58,14 +58,14 @@ class Mongohandler {
             return db.collection('users').updateOne({ '_id': ObjectId(user) }, { $set: { 'horaslibres': horas } })
         })
     }
-    async nuevoComentarioTablero(f, h, comment) {
+    async nuevoComentarioTablero(f, h, comment, tag) {
         return this.connect().then(db => {
-            return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment, respuestas: [], likes: [], dislikes: [] })
+            return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment, respuestas: [], likes: [], dislikes: [], tag: tag })
         })
     }
-    async nuevoAnuncio(f, h, comment, user) {
+    async nuevoAnuncio(f, h, comment, user, tag) {
         return this.connect().then(db => {
-            return db.collection('Anuncios').insertOne({ fecha: f, hora: h, comentario: comment, usuario: user, respuestas: [], likes: [], dislikes: [] })
+            return db.collection('Anuncios').insertOne({ fecha: f, hora: h, comentario: comment, usuario: user, respuestas: [], likes: [], dislikes: [], tag: tag })
         })
     }
     async traerPostsAnterioresTablero() {
@@ -131,18 +131,29 @@ class Mongohandler {
             return db.collection('Anuncios').updateOne({ '_id': ObjectId(idAnuncio) }, { $push: { respuestas: objeto } })
         })
     }
-    async nuevoLikeAnuncio(commentID,userID){//primero se debe buscar en el array del documento correspondiente al anuncio en cuestión, si ya tiene like se borra del array de likes, si no se añade a dicho array y se busca si está en el de dislikes, si está se elimina.
+    async nuevoLikeAnuncio(commentID, userID) {//primero se debe buscar en el array del documento correspondiente al anuncio en cuestión, si ya tiene like se borra del array de likes, si no se añade a dicho array y se busca si está en el de dislikes, si está se elimina.
 
     }
-    async nuevoDislikeAnuncio(commentID,userID){//lo mismo de arriba pero con dislike...
+    async nuevoDislikeAnuncio(commentID, userID) {//lo mismo de arriba pero con dislike...
 
     }
     //lo mismo pero con el tablero
-    async nuevoLikeAnuncio(commentID,userID){
+    async nuevoLikeAnuncio(commentID, userID) {
 
     }
-    async nuevoDislikeAnuncio(commentID,userID){
+    async nuevoDislikeAnuncio(commentID, userID) {
 
+    }
+
+    async traerAnunciosPorFiltros(filtro) {
+        return this.connect().then( db => {
+            return  db.collection('Anuncios').find({ tag: filtro })//nooo
+        })
+
+    }
+
+    async traerPostTableroPorFiltro(filtro) {
+        
     }
 }
 module.exports = new Mongohandler()
