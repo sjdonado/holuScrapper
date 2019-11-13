@@ -33,16 +33,16 @@ class Mongohandler {
         })
     }
     async crearNuevoUsuario(name, user, pass, tel, u) {
-        this.connect().then(db => {
-            db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: [], amigos: [] });
+        await this.connect().then(async (db)=> {
+            await db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: [], amigos: [] });
         })
         return this.connect().then(db => {
             return db.collection('Horario').insertOne({ usuario: user, horario: [] });
         })
     }
     async crearNuevoUsuarioConHorario(name, user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
-        this.connect().then(db => {
-            db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: horaslibress, amigos: [] });
+        await this.connect().then(async (db)=> {
+            await db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: horaslibress, amigos: [] });
         })
         return this.connect().then(db => {
             return db.collection('Horario').insertOne({ usuario: user, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo] });
@@ -109,8 +109,8 @@ class Mongohandler {
         })
     }
     async nuevoAmigo(user1, user2) {
-        this.connect().then(db => {
-            db.collection('users').updateOne({ '_id': ObjectId(user1) }, { $push: { amigos: user2 } })
+        await this.connect().then(async (db)=> {
+            await db.collection('users').updateOne({ '_id': ObjectId(user1) }, { $push: { amigos: user2 } })
         })
         return this.connect().then(db => {
             return db.collection('users').updateOne({ '_id': ObjectId(user2) }, { $push: { amigos: user1 } })
@@ -131,29 +131,39 @@ class Mongohandler {
             return db.collection('Anuncios').updateOne({ '_id': ObjectId(idAnuncio) }, { $push: { respuestas: objeto } })
         })
     }
-    async nuevoLikeAnuncio(commentID, userID) {//primero se debe buscar en el array del documento correspondiente al anuncio en cuestión, si ya tiene like se borra del array de likes, si no se añade a dicho array y se busca si está en el de dislikes, si está se elimina.
-
-    }
-    async nuevoDislikeAnuncio(commentID, userID) {//lo mismo de arriba pero con dislike...
-
-    }
-    //lo mismo pero con el tablero
     async nuevoLikeAnuncio(commentID, userID) {
 
+        await this.connect().then(async (db) => {
+            await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
+        })
+        await this.connect().then(async (db) => {
+            await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
+        })
+        return this.connect().then(async (db) => {
+            return db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $push: { likes: ObjectId(userID) } })
+        })
     }
     async nuevoDislikeAnuncio(commentID, userID) {
-
+        await this.connect().then(async (db) => {
+            await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
+        })
+        await this.connect().then(async (db) => {
+            await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
+        })
+        return this.connect().then(async (db) => {
+            return db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $push: { dislikes: ObjectId(userID) } })
+        })
     }
 
     async traerAnunciosPorFiltros(filtro) {
-        return this.connect().then( db => {
-            return  db.collection('Anuncios').find({ tag: filtro })//nooo
+        return this.connect().then(db => {
+            return db.collection('Anuncios').find({ tag: filtro })
         })
 
     }
 
     async traerPostTableroPorFiltro(filtro) {
-        
+
     }
 }
 module.exports = new Mongohandler()

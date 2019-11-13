@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt')
 const multer = require('multer')
 const path = require('path')
 const mongohandler = require('./Mongolib/index')
-const scrapper = require('./scrappers/uninorte').default
+const scrapper = require('./scrappers/uninorte')
 const horasEnComun = require('./funcionalities/commonHours')
 const { Storage } = require('@google-cloud/storage')
 const fs = require('fs');
@@ -240,11 +240,17 @@ router.post('/nuevaRespuestaAnuncio/:anuncioID/:userID/:respuesta', async functi
 })
 router.patch('/nuevoLikeAnuncio/:anuncioID/:userID', async function (req, res) {
     console.log("se conectaron a /nuevoLikeAnuncio/:anuncioID/:userID")
-
+    let anuncioID = req.params.anuncioID
+    let userID = req.params.userID
+    let x = await mongohandler.nuevoLikeAnuncio(anuncioID, userID)
+    res.json("Done!")
 })
 router.patch('/nuevoDislikeAnuncio/:anuncioID/:userID', async function (req, res) {
     console.log("se conectaron a /nuevoDislikeAnuncio/:anuncioID/:userID")
-
+    let anuncioID = req.params.anuncioID
+    let userID = req.params.userID
+    let x = await mongohandler.nuevoDislikeAnuncio(anuncioID, userID)
+    res.json("Done!")
 })
 router.get('/traerAnunciosPorFiltros/:arreglo', async function (req, res) {
     console.log("se conectaron a /traerAnunciosPorFiltros/:arreglo")
