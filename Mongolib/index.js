@@ -33,7 +33,7 @@ class Mongohandler {
         })
     }
     async crearNuevoUsuario(name, user, pass, tel, u) {
-        await this.connect().then(async (db)=> {
+        await this.connect().then(async (db) => {
             await db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: [], amigos: [] });
         })
         return this.connect().then(db => {
@@ -41,7 +41,7 @@ class Mongohandler {
         })
     }
     async crearNuevoUsuarioConHorario(name, user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
-        await this.connect().then(async (db)=> {
+        await this.connect().then(async (db) => {
             await db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: horaslibress, amigos: [] });
         })
         return this.connect().then(db => {
@@ -58,9 +58,9 @@ class Mongohandler {
             return db.collection('users').updateOne({ '_id': ObjectId(user) }, { $set: { 'horaslibres': horas } })
         })
     }
-    async nuevoComentarioTablero(f, h, comment, tag) {
+    async nuevoComentarioTablero(f, h, comment) {
         return this.connect().then(db => {
-            return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment, respuestas: [], likes: [], dislikes: [], tag: tag })
+            return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment, respuestas: [], likes: [], dislikes: [] })
         })
     }
     async nuevoAnuncio(f, h, comment, user, tag) {
@@ -109,7 +109,7 @@ class Mongohandler {
         })
     }
     async nuevoAmigo(user1, user2) {
-        await this.connect().then(async (db)=> {
+        await this.connect().then(async (db) => {
             await db.collection('users').updateOne({ '_id': ObjectId(user1) }, { $push: { amigos: user2 } })
         })
         return this.connect().then(db => {
@@ -131,8 +131,18 @@ class Mongohandler {
             return db.collection('Anuncios').updateOne({ '_id': ObjectId(idAnuncio) }, { $push: { respuestas: objeto } })
         })
     }
+    async traerRespuestasEltablero(id) {
+        console.log(id)
+        return this.connect().then(db => {
+            return db.collection('ElTableroPosts').findOne({ '_id': ObjectId(id) }, { projection: { respuestas: 1, _id: 0 } })
+        })
+    }
+    async nuevaRespuestaEltablero(idAnuncio, respuesta) {
+        return this.connect().then(db => {
+            return db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(idAnuncio) }, { $push: { respuestas: respuesta } })
+        })
+    }
     async nuevoLikeAnuncio(commentID, userID) {
-
         await this.connect().then(async (db) => {
             await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
         })
@@ -154,15 +164,32 @@ class Mongohandler {
             return db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $push: { dislikes: ObjectId(userID) } })
         })
     }
-
+    async nuevoLikeEltablero(commentID, userID) {
+        await this.connect().then(async (db) => {
+            await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
+        })
+        await this.connect().then(async (db) => {
+            await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
+        })
+        return this.connect().then(async (db) => {
+            return db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $push: { likes: ObjectId(userID) } })
+        })
+    }
+    async nuevoDislikeEltablero(commentID, userID) {
+        await this.connect().then(async (db) => {
+            await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
+        })
+        await this.connect().then(async (db) => {
+            await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
+        })
+        return this.connect().then(async (db) => {
+            return db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $push: { dislikes: ObjectId(userID) } })
+        })
+    }
     async traerAnunciosPorFiltros(filtro) {
         return this.connect().then(db => {
             return db.collection('Anuncios').find({ tag: filtro })
         })
-
-    }
-
-    async traerPostTableroPorFiltro(filtro) {
 
     }
 }

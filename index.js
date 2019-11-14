@@ -132,14 +132,13 @@ router.patch('/newFriend/:user1/:user2', async function (req, res) {//cuando agr
 
     }
 })
-router.post('/newPostTablero/:fecha/:hora/:comentario/:tag', async function (req, res) {
+router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res) {
     console.log("se conectaron a /newPostTablero/:fecha/:hora/:comentario")
     let fecha = req.params.fecha
     let hora = req.params.hora
     let comentario = req.params.comentario
-    let tag = req.params.tag
     if (comentario) {
-        await mongohandler.nuevoComentarioTablero(fecha, hora, comentario, tag)
+        await mongohandler.nuevoComentarioTablero(fecha, hora, comentario)
         res.json("Done!")
     }
 
@@ -223,6 +222,12 @@ router.get('/traerRespuestasPostAnuncios/:ID', async function (req, res) {
     let x = await mongohandler.traerRespuestasPostAnuncios(ID)
     res.json(x)
 })
+router.get('/traerRespuestasPostTablero/:ID', async function (req, res) {
+    console.log("se conectaron a traerRespuestasPostTablero/:ID")
+    let ID = req.params.ID
+    let x = await mongohandler.traerRespuestasEltablero(ID)
+    res.json(x)
+})
 router.post('/nuevaRespuestaAnuncio/:anuncioID/:userID/:respuesta', async function (req, res) {
     console.log("se conectaron a nuevaRespuestaAnuncio/:anuncioID/:userID")
     let anuncioID = req.params.anuncioID
@@ -236,6 +241,28 @@ router.post('/nuevaRespuestaAnuncio/:anuncioID/:userID/:respuesta', async functi
     }
     let o = new clase(respuesta, userID)
     let x = await mongohandler.nuevaRespuestaAnuncio(anuncioID, o)
+    res.json("Done!")
+})
+router.post('/nuevaRespuestaTablero/:anuncioID/:respuesta', async function (req, res) {
+    console.log("se conectaron a nuevaRespuestaTablero/:anuncioID/:respuesta")
+    let anuncioID = req.params.anuncioID
+    let respuesta = req.params.respuesta
+    console.log(anuncioID)
+    let x = await mongohandler.nuevaRespuestaEltablero(anuncioID, respuesta)
+    res.json("Done!")
+})
+router.patch('/nuevoLikeTablero/:anuncioID/:userID', async function (req, res) {
+    console.log("se conectaron a /nuevoLikeTablero/:anuncioID/:userID")
+    let anuncioID = req.params.anuncioID
+    let userID = req.params.userID
+    let x = await mongohandler.nuevoLikeEltablero(anuncioID, userID)
+    res.json("Done!")
+})
+router.patch('/nuevoDislikeTablero/:anuncioID/:userID', async function (req, res) {
+    console.log("se conectaron a /nuevoDislikeTablero/:anuncioID/:userID")
+    let anuncioID = req.params.anuncioID
+    let userID = req.params.userID
+    let x = await mongohandler.nuevoDislikeEltablero(anuncioID, userID)
     res.json("Done!")
 })
 router.patch('/nuevoLikeAnuncio/:anuncioID/:userID', async function (req, res) {
