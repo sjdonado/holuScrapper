@@ -132,7 +132,6 @@ class Mongohandler {
         })
     }
     async traerRespuestasEltablero(id) {
-        console.log(id)
         return this.connect().then(db => {
             return db.collection('ElTableroPosts').findOne({ '_id': ObjectId(id) }, { projection: { respuestas: 1, _id: 0 } })
         })
@@ -146,19 +145,26 @@ class Mongohandler {
         await this.connect().then(async (db) => {
             await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
         })
-        await this.connect().then(async (db) => {
-            await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
-        })
+
         return this.connect().then(async (db) => {
             return db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $push: { likes: ObjectId(userID) } })
         })
     }
+    async noInteractionAnuncio(commentID, userID, flag) {
+        if (flag === "1") {
+            return await this.connect().then(async (db) => {
+                return await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
+            })
+        } else {
+            return await this.connect().then(async (db) => {
+                return await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
+            })
+        }
+
+    }
     async nuevoDislikeAnuncio(commentID, userID) {
         await this.connect().then(async (db) => {
             await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
-        })
-        await this.connect().then(async (db) => {
-            await db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
         })
         return this.connect().then(async (db) => {
             return db.collection('Anuncios').updateOne({ '_id': ObjectId(commentID) }, { $push: { dislikes: ObjectId(userID) } })
@@ -168,29 +174,35 @@ class Mongohandler {
         await this.connect().then(async (db) => {
             await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
         })
-        await this.connect().then(async (db) => {
-            await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
-        })
         return this.connect().then(async (db) => {
             return db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $push: { likes: ObjectId(userID) } })
         })
+    }
+    async noInteractionTablero(commentID, userID, flag) {
+        if (flag === "1") {
+            return await this.connect().then(async (db) => {
+                return await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
+            })
+        } else {
+            return await this.connect().then(async (db) => {
+                return await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
+            })
+        }
+
     }
     async nuevoDislikeEltablero(commentID, userID) {
         await this.connect().then(async (db) => {
             await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { likes: ObjectId(userID) } })
         })
-        await this.connect().then(async (db) => {
-            await db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $pull: { dislikes: ObjectId(userID) } })
-        })
+
         return this.connect().then(async (db) => {
             return db.collection('ElTableroPosts').updateOne({ '_id': ObjectId(commentID) }, { $push: { dislikes: ObjectId(userID) } })
         })
     }
     async traerAnunciosPorFiltros(filtro) {
-        return this.connect().then(db => {
+        return this.connect().then(async (db) => {
             return db.collection('Anuncios').find({ tag: filtro })
         })
-
     }
 }
 module.exports = new Mongohandler()

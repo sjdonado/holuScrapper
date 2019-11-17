@@ -258,6 +258,14 @@ router.patch('/nuevoLikeTablero/:anuncioID/:userID', async function (req, res) {
     let x = await mongohandler.nuevoLikeEltablero(anuncioID, userID)
     res.json("Done!")
 })
+router.patch('/noInteractionTablero/:anuncioID/:userID/:flag', async function (req, res) {
+    console.log("se conectaron a /noInteractionTablero/:anuncioID/:userID/:flag")
+    let anuncioID = req.params.anuncioID
+    let userID = req.params.userID
+    let flag = req.params.flag
+    let x = await mongohandler.noInteractionTablero(anuncioID, userID, flag)
+    res.json("Done!")
+})
 router.patch('/nuevoDislikeTablero/:anuncioID/:userID', async function (req, res) {
     console.log("se conectaron a /nuevoDislikeTablero/:anuncioID/:userID")
     let anuncioID = req.params.anuncioID
@@ -270,6 +278,14 @@ router.patch('/nuevoLikeAnuncio/:anuncioID/:userID', async function (req, res) {
     let anuncioID = req.params.anuncioID
     let userID = req.params.userID
     let x = await mongohandler.nuevoLikeAnuncio(anuncioID, userID)
+    res.json("Done!")
+})
+router.patch('/noInteractionAnuncio/:anuncioID/:userID/:flag', async function (req, res) {
+    console.log("se conectaron a /noInteractionAnuncio/:anuncioID/:userID/:flag")
+    let anuncioID = req.params.anuncioID
+    let userID = req.params.userID
+    let flag = req.params.flag
+    let x = await mongohandler.noInteractionAnuncio(anuncioID, userID, flag)
     res.json("Done!")
 })
 router.patch('/nuevoDislikeAnuncio/:anuncioID/:userID', async function (req, res) {
