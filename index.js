@@ -29,6 +29,10 @@ const upload = multer({ storage: storage })
 sockets.on('connect', socket => {
     let arreglo = []
     console.log("se conectaron a este socket")
+    let room = socket.handshake['query']['room']
+    socket.join(room);
+    console.log('user joined room #' + room);
+    
     socket.on("message", msg => {
         arreglo.push(msg)
         console.log(arreglo)
