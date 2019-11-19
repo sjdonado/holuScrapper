@@ -32,7 +32,7 @@ sockets.on('connect', socket => {
     let room = socket.handshake['query']['room']
     socket.join(room);
     console.log('user joined room #' + room);
-    
+
     socket.on("message", msg => {
         arreglo.push(msg)
         console.log(arreglo)
@@ -310,5 +310,28 @@ router.get('/traerAnunciosPorFiltros/:arreglo', async function (req, res) {
         Promise.resolve('ok')
     }))
     res.json(arre)
+})
+router.patch('/nuevoMensaje/:idConversacion/:user1/:user2/:sender/:mensaje/:hora/:dia/:year', async function (req, res) {
+    console.log("se conectaron a /nuevoMensaje/:idConversacion/:user1/:user2/:sender/:mensaje/:hora/:dia/:año")
+    let idConversacion = req.params.idConversacion
+    let user1 = req.params.user1
+    let user2 = req.params.user2
+    let sender = req.params.sender
+    let mensaje = req.params.mensaje
+    let hora = req.params.hora
+    let dia = req.params.dia
+    let year = req.params.year
+    class clasee {
+        constructor(sender, mensaje, hora, dia, year) {
+            this.sender = ObjectId(sender)
+            this.mensaje = mensaje
+            this.hora = hora
+            this.dia = dia
+            this.year = year
+        }
+    }
+    let o = new clasee(sender, mensaje, hora, dia, year)
+    await mongohandler.nuevoMensaje(idConversacion, user1, user2, o)
+    res.json("Done!")
 })
 module.exports = app;

@@ -95,7 +95,7 @@ class Mongohandler {
     }
     async traerInfoAmigos(id) {//crear el campo nombre en mongo atlas y esta función debe devolver dirección de imagen, universidad y nombre(por ahora +3usuario)
         return this.connect().then(db => {
-            return db.collection('users').findOne({ _id: ObjectId(id) }, { projection: { direccionimagen: 1, _id: 0, universidad: 1, nombre: 1 } })
+            return db.collection('users').findOne({ _id: ObjectId(id) }, { projection: { direccionimagen: 1, _id: 1, universidad: 1, nombre: 1 } })
         })
     }
     async traerHorasLibres(user) {
@@ -202,6 +202,15 @@ class Mongohandler {
     async traerAnunciosPorFiltros(filtro) {
         return this.connect().then(async (db) => {
             return db.collection('Anuncios').find({ tag: filtro })
+        })
+    }
+    async nuevoMensaje(idConversacion, user1, user2, objetoMensaje) {//se tiene que mejorar
+        return this.connect().then(async (db) => {
+            return db.collection('Conversaciones').findOneAndUpdate(
+                { "_id": idConversacion },
+                { $set: { _id: idConversacion, user1: user1, user2: user2 }, $push: { mensajes: objetoMensaje } },
+                { upsert: true, returnNewDocument: true }
+            );
         })
     }
 }
