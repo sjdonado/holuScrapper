@@ -312,4 +312,17 @@ router.get('/traerAnunciosPorFiltros/:arreglo', async function (req, res) {
     }))
     res.json(arre)
 })
+app.get('/buscarConversaciones/:user',async function(req,res){
+    console.log("se conectaron a /buscarConversaciones/:user")
+    let user=req.params.user
+    let x =await mongohandler.buscarConversaciones(user)
+    let xx=await x.toArray()
+    res.json(xx)
+})
+app.get('/traerMensajesAnteriores/:idConversacion',async function(req,res){
+    console.log("se conectaron a /traerMensajesAnteriores/:idConversacion")
+    let idConversacion=req.params.idConversacion
+    let x=await mongohandler.traerMensajesAnteriores(idConversacion)
+    res.json(x)
+})
 module.exports = app;

@@ -213,5 +213,19 @@ class Mongohandler {
             );
         })
     }
+    async buscarConversaciones(user) {
+        return this.connect().then(async (db) => {
+            return db.collection('Conversaciones').find(
+                { $or: [{ user1: user }, { user2: user }] }
+            )
+        })
+    }
+    async traerMensajesAnteriores(idConversacion) {
+        return this.connect().then(async (db) => {
+            return db.collection('Conversaciones').findOne(
+                { _id: idConversacion }, { projection: { mensajes: 1, text: 1, _id: 0 } }
+            )
+        })
+    }
 }
 module.exports = new Mongohandler()
