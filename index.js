@@ -33,7 +33,7 @@ sockets.on('connect', socket => {
     let room = socket.handshake['query']['room']
     socket.join(room);
     console.log('user joined room #' + room);
-    socket.on("message", async(msg) => {
+    socket.on("message", async (msg) => {
         arreglo.push(msg)
         let obj = new OtraClase(arreglo[0].user.sender, arreglo[0].text, arreglo[0].user.hora, arreglo[0].user.dia, arreglo[0].user.year)
         await mongohandler.nuevoMensaje(arreglo[0].user.idConversacion, arreglo[0].user.sender, arreglo[0].user.otherUser, obj)
@@ -312,17 +312,23 @@ router.get('/traerAnunciosPorFiltros/:arreglo', async function (req, res) {
     }))
     res.json(arre)
 })
-app.get('/buscarConversaciones/:user',async function(req,res){
+app.get('/buscarConversaciones/:user', async function (req, res) {
     console.log("se conectaron a /buscarConversaciones/:user")
-    let user=req.params.user
-    let x =await mongohandler.buscarConversaciones(user)
-    let xx=await x.toArray()
+    let user = req.params.user
+    let x = await mongohandler.buscarConversaciones(user)
+    let xx = await x.toArray()
     res.json(xx)
 })
-app.get('/traerMensajesAnteriores/:idConversacion',async function(req,res){
+app.get('/traerMensajesAnteriores/:idConversacion', async function (req, res) {
     console.log("se conectaron a /traerMensajesAnteriores/:idConversacion")
-    let idConversacion=req.params.idConversacion
-    let x=await mongohandler.traerMensajesAnteriores(idConversacion)
+    let idConversacion = req.params.idConversacion
+    let x = await mongohandler.traerMensajesAnteriores(idConversacion)
+    res.json(x)
+})
+app.get('/traerAnuncioVidaUniversitaria/:dia', async function (req, res) {//no más spam al correo
+    console.log("se conectaron a /traerAnuncioVidaUniversitaria/:dia")
+    let dia = req.params.dia
+    let x= await mongohandler.traerVidaUniversitaria(dia)
     res.json(x)
 })
 module.exports = app;

@@ -227,5 +227,12 @@ class Mongohandler {
             )
         })
     }
+    async traerVidaUniversitaria(dia) {
+        return this.connect().then(async (db) => {
+            return db.collection('vidaUniversitaria').find(
+                { dia: dia }, { projection: {  dia: 0 } }
+            )
+        })
+    }
 }
 module.exports = new Mongohandler()
