@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 async function run(user, pass) {
     horario = [], lunes2 = [], martes2 = [], miercoles2 = [], jueves2 = [], viernes2 = [], sabado2 = [], domingo2 = [], thefinalone = []
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'], headless: false });
     try {
         const USERNAME_SELECTOR = '#UserID'
         const PASSWORD_SELECTOR = '#PIN > input[type=password]'
@@ -17,11 +17,11 @@ async function run(user, pass) {
         await page.click(PASSWORD_SELECTOR);
         await page.keyboard.type(pass)
         await page.click('body > div.pagebodydiv > form > p > input[type=submit]')
-        await page.waitForNavigation() 
+        await page.waitForNavigation()
         await page.click(INFOACADEMICA_SELECTOR)
         await page.click(MATRICULA_SELECTOR)
         await page.click(HORARIO_SELECTOR)
-        await page.select(SELECT_SELECTOR, '201930')
+        await page.select(SELECT_SELECTOR, '202010')
         await page.click(BOTON_SELECTOR)
         await page.waitForSelector('body > div.pagebodydiv');
         await page.waitFor(10000);
@@ -211,7 +211,7 @@ function horasLibres(matriz) {//hacer comparaciones dia a dia para solo darle pe
 function reparseo(algo) {
     if (algo < 1200) {
         if (algo.substring(0, 1) === "1") {
-             let obj=new otraClase(algo.substring(0, 2) + ":" + algo.substring(2, algo.length) + " AM")
+            let obj = new otraClase(algo.substring(0, 2) + ":" + algo.substring(2, algo.length) + " AM")
             return obj
         } else {
             let obj = new otraClase(algo.substring(0, 1) + ":" + algo.substring(1, algo.length) + " AM")
@@ -246,8 +246,8 @@ class clases {
     }
 
 }
-class otraClase{
-    constructor(lahora){
+class otraClase {
+    constructor(lahora) {
         this.hora = lahora
         this.amigos = []
     }
