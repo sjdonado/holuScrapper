@@ -1,21 +1,26 @@
 const express = require("express")
 const app = express()
-const server = require('http').createServer(app)
+//const server = require('http').createServer(app)
 const router = express.Router()
-const sockets = require('socket.io')(server)
+//const sockets = require('socket.io')(server)
 const bcrypt = require('bcrypt')
-const multer = require('multer')
-const path = require('path')
+//const multer = require('multer')
+//const path = require('path')
 const mongohandler = require('./Mongolib/index')
 const scrapper = require('./scrappers/uninorte')
 const horasEnComun = require('./funcionalities/commonHours')
-const OtraClase = require('./funcionalities/messageClass')
-const { Storage } = require('@google-cloud/storage')
-const fs = require('fs');
+//const OtraClase = require('./funcionalities/messageClass')
+//const { Storage } = require('@google-cloud/storage')
+//const fs = require('fs');
+const firebase = require("firebase/app");
 const ObjectId = require('mongodb').ObjectId
 const bodyParser = require('body-parser')
+const firebaseConfig = require('./config')
 //const config=require('dotenv').config()
-const storage =
+require("firebase/auth");
+require("firebase/firestore");
+firebase.initializeApp(firebaseConfig);
+{/*const storage =
     multer.diskStorage({
         destination: function (req, file, cb) {
             cb(null, 'uploads/')
@@ -24,7 +29,6 @@ const storage =
             cb(null, Date.now() + path.extname(file.originalname))
         }
     })
-
 const upload = multer({ storage: storage })
 
 sockets.on('connect', socket => {
@@ -42,13 +46,13 @@ sockets.on('connect', socket => {
 })
 server.listen(8080, function () {
     console.log('servidor iniciado en 8080')
-})
+})*/}
 app.listen(3000);
 app.use(bodyParser.json())
 app.use(router)
 //OJO ESTOY AGREGANDO ELEMENTOS AL VECTOR DE HORARIO, SI LLAMA VARIAS A VECES A LA FUNCION SE VAN A AGREGAR LO EQUIVALENTE A MAS DIAS, PUEDE SER PERJUDICIAL
 console.log('server started on port 3000');
-router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
+{/*router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
     console.log("se conectaron a complete register")
     let name = req.params.name
     let user = req.params.userApp
@@ -68,6 +72,40 @@ router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:u
         res.json("DONE!")
     }
 
+})*/}
+
+router.post('/completeRegister/:userU/:passU/:name/:passApp/', async function (req, res) {//registro completo (con horario incluido)
+    console.log("se conectaron a complete register")
+    let flag = false
+    let uniUser = req.params.userU 
+    let mail = req.params.userU + "@uninorte.edu.co"
+    let uniPass = req.params.passU
+    let name = req.params.name
+    let pass = req.params.passApp
+    await firebase.auth().createUserWithEmailAndPassword(mail, pass).then(result => {
+        result.user.updateProfile({
+            displayName: name
+        })
+        const configuracion = {
+            url: 'http://192.168.1.64:3000/bienvenido'
+        }
+        result.user.sendEmailVerification(configuracion).catch(err => {
+            console.log("1:" + err)
+            flag = true
+        })
+        firebase.auth().signOut()
+    }).catch(err => {
+        flag = true
+        console.error("2:" + err)
+        res.json(err)
+    })
+    if (!flag) {
+        const solucion = await scrapper(uniUser, uniPass)
+        const vector = solucion[0]
+        const hashedpassword = await bcrypt.hash(pass, 10)
+        let c = await mongohandler.crearNuevoUsuarioConHorario(name, uniUser, hashedpassword, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6], solucion[1])
+        res.json("DONE!")
+    }
 })
 router.patch('/agregarhorario/:Appuser/:universityUser/:universityPass', async function (req, res) {//para cuando una persona que al registrarse no quiso importar su horario y apenas ahora lo va a hacer
     console.log("se conectaron a agregarhorario/:Appuser/:universityUser/:universityPass")
@@ -174,7 +212,7 @@ router.get('/retreivePostsAnuncios', async function (req, res) {
     res.json(xx)
 })
 
-router.post('/uploadImage/:user', upload.single('file'), async function (req, res) {//falta recibir el usuario
+{/*router.post('/uploadImage/:user', upload.single('file'), async function (req, res) {//falta recibir el usuario
     console.log("se conectaron a /uploadingImage")
     let urI = req.file.filename
     let user = req.params.user
@@ -196,7 +234,7 @@ router.post('/uploadImage/:user', upload.single('file'), async function (req, re
             console.error('ERROR:', err);
         });
     res.end()
-})
+})*/}
 router.get('/traerHorasLibres/:user', async function (req, res) {
     console.log("se conectaron a /traerHorasLibres/:user")
     let user = req.params.user
@@ -328,7 +366,7 @@ app.get('/traerMensajesAnteriores/:idConversacion', async function (req, res) {
 app.get('/traerAnuncioVidaUniversitaria/:dia', async function (req, res) {//no más spam al correo
     console.log("se conectaron a /traerAnuncioVidaUniversitaria/:dia")
     let dia = req.params.dia
-    let x= await mongohandler.traerVidaUniversitaria(dia)
+    let x = await mongohandler.traerVidaUniversitaria(dia)
     res.json(x)
 })
 module.exports = app;

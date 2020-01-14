@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 async function run(user, pass) {
     horario = [], lunes2 = [], martes2 = [], miercoles2 = [], jueves2 = [], viernes2 = [], sabado2 = [], domingo2 = [], thefinalone = []
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'], headless: false });
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
     try {
         const USERNAME_SELECTOR = '#UserID'
         const PASSWORD_SELECTOR = '#PIN > input[type=password]'

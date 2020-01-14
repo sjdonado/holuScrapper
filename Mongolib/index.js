@@ -40,9 +40,9 @@ class Mongohandler {
             return db.collection('Horario').insertOne({ usuario: user, horario: [] });
         })
     }
-    async crearNuevoUsuarioConHorario(name, user, pass, tel, u, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
+    async crearNuevoUsuarioConHorario(name, user, pass, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
         await this.connect().then(async (db) => {
-            await db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: horaslibress, amigos: [] });
+            await db.collection('users').insertOne({ nombre: name, usuario: user, contraseña: pass, horaslibres: horaslibress, amigos: [] });
         })
         return this.connect().then(db => {
             return db.collection('Horario').insertOne({ usuario: user, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo] });
