@@ -47,11 +47,11 @@ sockets.on('connect', socket => {
 server.listen(8080, function () {
     console.log('servidor iniciado en 8080')
 })*/}
-app.listen(3000);
+app.listen(3001);
 app.use(bodyParser.json())
 app.use(router)
 //OJO ESTOY AGREGANDO ELEMENTOS AL VECTOR DE HORARIO, SI LLAMA VARIAS A VECES A LA FUNCION SE VAN A AGREGAR LO EQUIVALENTE A MAS DIAS, PUEDE SER PERJUDICIAL
-console.log('server started on port 3000');
+console.log('server started on port 3001');
 {/*router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
     console.log("se conectaron a complete register")
     let name = req.params.name
@@ -77,7 +77,7 @@ console.log('server started on port 3000');
 router.post('/completeRegister/:userU/:passU/:name/:passApp/', async function (req, res) {//registro completo (con horario incluido)
     console.log("se conectaron a complete register")
     let flag = false
-    let uniUser = req.params.userU 
+    let uniUser = req.params.userU
     let mail = req.params.userU + "@uninorte.edu.co"
     let uniPass = req.params.passU
     let name = req.params.name
@@ -133,7 +133,7 @@ router.post('/directRegister/:name/:user/:pass/:telefono/:universidad', async fu
     }
 
 })
-router.get('/login/:user/:pass', async function (req, res) {//tratando de entrar a la aplicación
+{/*router.get('/login/:user/:pass', async function (req, res) {//tratando de entrar a la aplicación
     console.log("se conectaron a login/:user/:pass")
     let username = req.params.user
     let pass = req.params.pass
@@ -149,6 +149,25 @@ router.get('/login/:user/:pass', async function (req, res) {//tratando de entrar
         console.log("Error authenticating user: ");
         console.log(error);
     });
+})*/}
+
+router.get('/login/:email/:pass', async function (req, res) {//tratando de entrar a la aplicación
+    console.log("se conectaron a login/:email/:pass")
+    let email = req.params.email
+    let pass = req.params.pass
+    firebase.auth().signInWithEmailAndPassword(email, pass).then(result => {//la contraseña si se guarda de algún extraño modo XD para cuando vaya a dar sign in
+        if (result.user.emailVerified) {
+            res.json("ingreso exitoso!")
+        } else {
+            res.json("no se ha verificado la cuenta.")
+        }
+    }).catch(
+        err => {
+            console.error( err)
+            res.json(err)
+        }
+    )
+
 })
 router.get('/traerTodaLaInfoUsuario/:user', async function (req, res) {
     console.log("se conectaron a /login/traerTodaLaInfoUsuario/:user")
