@@ -72,7 +72,7 @@ console.log('server started on port 3001');
         res.json("DONE!")
     }
 
-})*/}
+})*/}//register anterior
 
 router.post('/completeRegister/:userU/:passU/:name/:passApp/', async function (req, res) {//registro completo (con horario incluido)
     console.log("se conectaron a complete register")
@@ -116,7 +116,7 @@ router.patch('/agregarhorario/:Appuser/:universityUser/:universityPass', async f
     let c = await mongohandler.actualizar(user, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6])//falta borrar si es que hay el horario anterior
     res.json("DONE!")
 })
-router.post('/directRegister/:name/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc y sin importar su horario con nuestro scrapper
+{/*router.post('/directRegister/:name/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc y sin importar su horario con nuestro scrapper
     console.log("se conectaron a /directRegister/:user/:pass/:telefono/:universidad")
     let name = req.params.name
     let user = req.params.user
@@ -132,8 +132,8 @@ router.post('/directRegister/:name/:user/:pass/:telefono/:universidad', async fu
         res.json("DONE!")
     }
 
-})
-{/*router.get('/login/:user/:pass', async function (req, res) {//tratando de entrar a la aplicación
+})*/}//funcionalidad vieja no para el 20/01/20
+{/*router.get('/login/:user/:pass', async function (req, res) {//login anterior (react native)
     console.log("se conectaron a login/:user/:pass")
     let username = req.params.user
     let pass = req.params.pass
@@ -163,7 +163,7 @@ router.get('/login/:email/:pass', async function (req, res) {//tratando de entra
         }
     }).catch(
         err => {
-            console.error( err)
+            console.error(err)
             res.json(err)
         }
     )
@@ -194,7 +194,7 @@ router.patch('/newFriend/:user1/:user2', async function (req, res) {//cuando agr
 
     }
 })
-router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res) {
+{/*router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res) {
     console.log("se conectaron a /newPostTablero/:fecha/:hora/:comentario")
     let fecha = req.params.fecha
     let hora = req.params.hora
@@ -229,7 +229,7 @@ router.get('/retreivePostsAnuncios', async function (req, res) {
     let x = await mongohandler.traerPostsAnterioresAnuncios()
     let xx = await x.toArray()
     res.json(xx)
-})
+})*/}
 
 {/*router.post('/uploadImage/:user', upload.single('file'), async function (req, res) {//falta recibir el usuario
     console.log("se conectaron a /uploadingImage")
@@ -260,7 +260,7 @@ router.get('/traerHorasLibres/:user', async function (req, res) {
     let x = await mongohandler.traerHorasLibres(user)
     res.json(x)
 })
-router.get('/traerInfoAmigo/:amigo', async function (req, res) {
+{/*router.get('/traerInfoAmigo/:amigo', async function (req, res) {
     console.log("se conectaron a /traerInfoAmigos")
     let amigo = req.params.amigo
     let x = await mongohandler.traerInfoAmigos(amigo)
@@ -387,5 +387,5 @@ app.get('/traerAnuncioVidaUniversitaria/:dia', async function (req, res) {//no m
     let dia = req.params.dia
     let x = await mongohandler.traerVidaUniversitaria(dia)
     res.json(x)
-})
+})*/}
 module.exports = app;
