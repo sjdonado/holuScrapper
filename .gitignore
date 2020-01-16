@@ -1,7 +1,5 @@
 node_modules
 .env
-temp.json
-gcp.json
 clave
 scrappers
 mongolib
