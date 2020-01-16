@@ -17,9 +17,9 @@ const ObjectId = require('mongodb').ObjectId
 const bodyParser = require('body-parser')
 const firebaseConfig = require('./config')
 //const config=require('dotenv').config()
-require("firebase/auth");
-require("firebase/firestore");
-firebase.initializeApp(firebaseConfig);
+require("firebase/auth")
+require("firebase/firestore")
+firebase.initializeApp(firebaseConfig)
 {/*const storage =
     multer.diskStorage({
         destination: function (req, file, cb) {
@@ -51,7 +51,7 @@ app.listen(3001);
 app.use(bodyParser.json())
 app.use(router)
 //OJO ESTOY AGREGANDO ELEMENTOS AL VECTOR DE HORARIO, SI LLAMA VARIAS A VECES A LA FUNCION SE VAN A AGREGAR LO EQUIVALENTE A MAS DIAS, PUEDE SER PERJUDICIAL
-console.log('server started on port 3001');
+console.log('server started on port 3001')
 {/*router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
     console.log("se conectaron a complete register")
     let name = req.params.name
@@ -194,6 +194,19 @@ router.patch('/newFriend/:user1/:user2', async function (req, res) {//cuando agr
 
     }
 })
+router.get('/traerHorasLibres/:user', async function (req, res) {
+    console.log("se conectaron a /traerHorasLibres/:user")
+    let user = req.params.user
+    let x = await mongohandler.traerHorasLibres(user)
+    res.json(x)
+})
+router.get('/buscarUsuarioPorNombre/:user', async function (req, res) {
+    console.log("se conectaron a /traerHorasLibres/:user")
+    let user = req.params.user
+    let x = await mongohandler.busquedaUsuarioPorNombre(user)
+    let xx = await x.toArray()
+    res.json(xx)
+})
 {/*router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res) {
     console.log("se conectaron a /newPostTablero/:fecha/:hora/:comentario")
     let fecha = req.params.fecha
@@ -254,12 +267,7 @@ router.get('/retreivePostsAnuncios', async function (req, res) {
         });
     res.end()
 })*/}
-router.get('/traerHorasLibres/:user', async function (req, res) {
-    console.log("se conectaron a /traerHorasLibres/:user")
-    let user = req.params.user
-    let x = await mongohandler.traerHorasLibres(user)
-    res.json(x)
-})
+
 {/*router.get('/traerInfoAmigo/:amigo', async function (req, res) {
     console.log("se conectaron a /traerInfoAmigos")
     let amigo = req.params.amigo
