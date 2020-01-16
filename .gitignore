@@ -3,3 +3,6 @@ node_modules
 temp.json
 gcp.json
 clave
+scrappers
+mongolib
+config
