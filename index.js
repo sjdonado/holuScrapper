@@ -21,13 +21,12 @@ require("firebase/auth")
 require("firebase/firestore")
 var allowCrossDomain = function (req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
 }
 
 app.use(allowCrossDomain);
-//some other code
 
 firebase.initializeApp(firebaseConfig)
 {/*const storage =
@@ -62,28 +61,6 @@ app.use(bodyParser.json())
 app.use(router)
 //OJO ESTOY AGREGANDO ELEMENTOS AL VECTOR DE HORARIO, SI LLAMA VARIAS A VECES A LA FUNCION SE VAN A AGREGAR LO EQUIVALENTE A MAS DIAS, PUEDE SER PERJUDICIAL
 console.log('server started on port 3001')
-{/*router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
-    console.log("se conectaron a complete register")
-    let name = req.params.name
-    let user = req.params.userApp
-    let pass = req.params.passApp
-    let number = req.params.telefono
-    let uni = req.params.universidad
-    let uniUser = req.params.userU
-    let uniPass = req.params.passU
-    let existencia = await mongohandler.buscarUsuario(user)
-    if (existencia) {
-        res.json("usuario existente")
-    } else {
-        const solucion = await scrapper(uniUser, uniPass);
-        const vector = solucion[0]
-        const hashedpassword = await bcrypt.hash(pass, 10)
-        let c = await mongohandler.crearNuevoUsuarioConHorario(name, user, hashedpassword, number, uni, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6], solucion[1])
-        res.json("DONE!")
-    }
-
-})*/}//register anterior
-
 router.post('/completeRegister/:userU/:passU/:name/:passApp/', async function (req, res) {//registro completo (con horario incluido)
     console.log("se conectaron a complete register")
     let flag = false
@@ -126,41 +103,6 @@ router.patch('/agregarhorario/:Appuser/:universityUser/:universityPass', async f
     let c = await mongohandler.actualizar(user, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6])//falta borrar si es que hay el horario anterior
     res.json("DONE!")
 })
-{/*router.post('/directRegister/:name/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc y sin importar su horario con nuestro scrapper
-    console.log("se conectaron a /directRegister/:user/:pass/:telefono/:universidad")
-    let name = req.params.name
-    let user = req.params.user
-    let pass = req.params.pass
-    let existencia = await mongohandler.buscarUsuario(user)
-    if (existencia) {
-        res.json("usuario existente")
-    } else {
-        const hashedpassword = await bcrypt.hash(pass, 10)
-        let telefono = req.params.telefono
-        let u = req.params.universidad
-        let x = await mongohandler.crearNuevoUsuario(name, user, hashedpassword, telefono, u)
-        res.json("DONE!")
-    }
-
-})*/}//funcionalidad vieja no para el 20/01/20
-{/*router.get('/login/:user/:pass', async function (req, res) {//login anterior (react native)
-    console.log("se conectaron a login/:user/:pass")
-    let username = req.params.user
-    let pass = req.params.pass
-    mongohandler.buscar(username).then(function (user) {
-        return bcrypt.compare(pass, user.contraseña)
-    }).then(function (samePassword) {
-        if (!samePassword) {
-            res.json({ "result": false })
-        } else {
-            res.json({ "result": true });
-        }
-    }).catch(function (error) {
-        console.log("Error authenticating user: ");
-        console.log(error);
-    });
-})*/}
-
 router.get('/login/:email/:pass', async function (req, res) {//tratando de entrar a la aplicación
     console.log("se conectaron a login/:email/:pass")
     let email = req.params.email
@@ -217,6 +159,76 @@ router.get('/buscarUsuarioPorNombre/:user', async function (req, res) {
     let xx = await x.toArray()
     res.json(xx)
 })
+router.patch('/enviarSolicitudDeAmistad/:userSender/:userReceiver', async function (req, res) {
+    console.log("se conectaron a /buscarUsuarioPorNombre/:user")
+    try {
+        let userSender = req.params.userSender
+        let userReceiver = req.params.userReceiver
+        let x = await mongohandler.enviarSolicitudDeAmistad(userSender, userReceiver)
+        res.json("Done")
+    } catch (err) {
+        console.log(err)
+        res.json("hubo un error")
+    }
+
+})
+{/*router.post('/completeRegister/:name/:userApp/:passApp/:telefono/:universidad/:userU/:passU', async function (req, res) {//registro completo (con horario incluido)
+    console.log("se conectaron a complete register")
+    let name = req.params.name
+    let user = req.params.userApp
+    let pass = req.params.passApp
+    let number = req.params.telefono
+    let uni = req.params.universidad
+    let uniUser = req.params.userU
+    let uniPass = req.params.passU
+    let existencia = await mongohandler.buscarUsuario(user)
+    if (existencia) {
+        res.json("usuario existente")
+    } else {
+        const solucion = await scrapper(uniUser, uniPass);
+        const vector = solucion[0]
+        const hashedpassword = await bcrypt.hash(pass, 10)
+        let c = await mongohandler.crearNuevoUsuarioConHorario(name, user, hashedpassword, number, uni, vector[0], vector[1], vector[2], vector[3], vector[4], vector[5], vector[6], solucion[1])
+        res.json("DONE!")
+    }
+
+})*/}//register anterior
+{/*router.post('/directRegister/:name/:user/:pass/:telefono/:universidad', async function (req, res) {//registro de un nuevo usuario de manera directa, es decir, sin usar instagram fb etc y sin importar su horario con nuestro scrapper
+    console.log("se conectaron a /directRegister/:user/:pass/:telefono/:universidad")
+    let name = req.params.name
+    let user = req.params.user
+    let pass = req.params.pass
+    let existencia = await mongohandler.buscarUsuario(user)
+    if (existencia) {
+        res.json("usuario existente")
+    } else {
+        const hashedpassword = await bcrypt.hash(pass, 10)
+        let telefono = req.params.telefono
+        let u = req.params.universidad
+        let x = await mongohandler.crearNuevoUsuario(name, user, hashedpassword, telefono, u)
+        res.json("DONE!")
+    }
+
+})*/}//funcionalidad vieja no para el 20/01/20
+{/*router.get('/login/:user/:pass', async function (req, res) {//login anterior (react native)
+    console.log("se conectaron a login/:user/:pass")
+    let username = req.params.user
+    let pass = req.params.pass
+    mongohandler.buscar(username).then(function (user) {
+        return bcrypt.compare(pass, user.contraseña)
+    }).then(function (samePassword) {
+        if (!samePassword) {
+            res.json({ "result": false })
+        } else {
+            res.json({ "result": true });
+        }
+    }).catch(function (error) {
+        console.log("Error authenticating user: ");
+        console.log(error);
+    });
+})*/}
+
+
 {/*router.post('/newPostTablero/:fecha/:hora/:comentario', async function (req, res) {
     console.log("se conectaron a /newPostTablero/:fecha/:hora/:comentario")
     let fecha = req.params.fecha

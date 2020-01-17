@@ -26,7 +26,7 @@ class Mongohandler {
         console.log(user)
         let s = "/^" + user + "/"
         return this.connect().then(db => {
-            return db.collection('users').find({ usuario: new RegExp('^' + user) }, { projection: { nombre: 1, usuario: 1 } }).limit(10)
+            return db.collection('users').find({ usuario: new RegExp('^' + user) }, { projection: { nombre: 1, usuario: 1, _id: 0 } }).limit(10)
         })
     }
     async actualizar(user, lunes2, martes2, miercoles2, jueves2, viernes2, sabado2, domingo2) {
@@ -38,17 +38,10 @@ class Mongohandler {
             )
         })
     }
-    /*  async crearNuevoUsuario(name, user, pass, tel, u) {
-          await this.connect().then(async (db) => {
-              await db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: [], amigos: [] });
-          })
-          return this.connect().then(db => {
-              return db.collection('Horario').insertOne({ usuario: user, horario: [] });
-          })
-      }*/
+
     async crearNuevoUsuarioConHorario(name, user, pass, lunes, martes, miercoles, jueves, viernes, sabado, domingo, horaslibress) {
         await this.connect().then(async (db) => {
-            await db.collection('users').insertOne({ nombre: name, usuario: user, contraseña: pass, horaslibres: horaslibress, amigos: [] });
+            await db.collection('users').insertOne({ nombre: name, usuario: user, contraseña: pass, horaslibres: horaslibress, amigos: [], solicitudes: [] });
         })
         return this.connect().then(db => {
             return db.collection('Horario').insertOne({ usuario: user, horario: [lunes, martes, miercoles, jueves, viernes, sabado, domingo] });
@@ -64,6 +57,27 @@ class Mongohandler {
             return db.collection('users').updateOne({ '_id': ObjectId(user) }, { $set: { 'horaslibres': horas } })
         })
     }
+    async enviarSolicitudDeAmistad(userSender, userReceiver) {
+        return this.connect().then(db => {
+            return db.collection('users').updateOne({ 'usuario': userReceiver }, { $push: { solicitudes: userSender } })
+        })
+    }
+    async nuevoAmigo(user1, user2) {
+        await this.connect().then(async (db) => {
+            await db.collection('users').updateOne({ '_id': ObjectId(user1) }, { $push: { amigos: user2 } })
+        })
+        return this.connect().then(db => {
+            return db.collection('users').updateOne({ '_id': ObjectId(user2) }, { $push: { amigos: user1 } })
+        })
+    }
+    /*  async crearNuevoUsuario(name, user, pass, tel, u) {
+      await this.connect().then(async (db) => {
+          await db.collection('users').insertOne({ nombre: name, universidad: u, usuario: user, contraseña: pass, telefono: tel, horaslibres: [], amigos: [] });
+      })
+      return this.connect().then(db => {
+          return db.collection('Horario').insertOne({ usuario: user, horario: [] });
+      })
+  }*/
     /* async nuevoComentarioTablero(f, h, comment) {
          return this.connect().then(db => {
              return db.collection('ElTableroPosts').insertOne({ fecha: f, hora: h, comentario: comment, respuestas: [], likes: [], dislikes: [] })
@@ -114,14 +128,7 @@ class Mongohandler {
              return db.collection('users').findOne({ usuario: user }, { projection: { usuario: 1, _id: 0 } })
          })
      }
-     async nuevoAmigo(user1, user2) {
-         await this.connect().then(async (db) => {
-             await db.collection('users').updateOne({ '_id': ObjectId(user1) }, { $push: { amigos: user2 } })
-         })
-         return this.connect().then(db => {
-             return db.collection('users').updateOne({ '_id': ObjectId(user2) }, { $push: { amigos: user1 } })
-         })
-     }
+    
      async traerTodaInfoUsuario(user) {
          return this.connect().then(db => {
              return db.collection('users').findOne({ usuario: user })
