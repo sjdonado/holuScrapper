@@ -19,6 +19,16 @@ const firebaseConfig = require('./config')
 //const config=require('dotenv').config()
 require("firebase/auth")
 require("firebase/firestore")
+var allowCrossDomain = function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', "*");
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+}
+
+app.use(allowCrossDomain);
+//some other code
+
 firebase.initializeApp(firebaseConfig)
 {/*const storage =
     multer.diskStorage({
@@ -201,7 +211,7 @@ router.get('/traerHorasLibres/:user', async function (req, res) {
     res.json(x)
 })
 router.get('/buscarUsuarioPorNombre/:user', async function (req, res) {
-    console.log("se conectaron a /traerHorasLibres/:user")
+    console.log("se conectaron a /buscarUsuarioPorNombre/:user")
     let user = req.params.user
     let x = await mongohandler.busquedaUsuarioPorNombre(user)
     let xx = await x.toArray()

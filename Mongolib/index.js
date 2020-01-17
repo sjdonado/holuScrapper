@@ -24,8 +24,9 @@ class Mongohandler {
     }
     async busquedaUsuarioPorNombre(user) {
         console.log(user)
+        let s = "/^" + user + "/"
         return this.connect().then(db => {
-            return db.collection('users').find({ usuario: new RegExp(  "/^" + user + "/" ) }, { projection: { nombre: 1 } }).limit(10)
+            return db.collection('users').find({ usuario: new RegExp('^' + user) }, { projection: { nombre: 1 } }).limit(10)
         })
     }
     async actualizar(user, lunes2, martes2, miercoles2, jueves2, viernes2, sabado2, domingo2) {
