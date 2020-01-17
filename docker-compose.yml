@@ -1,0 +1,42 @@
+version: '3.1'
+
+services:
+  api: 
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /usr/src/app/node_modules
+      - .:/usr/src/app
+    environment:
+      NODE_ENV: development
+      HOSTNAME: 0.0.0.0
+      PORT: 4000
+      SECRET: FE62A9667CC52
+      API_KEY:
+      AUTH_DOMAIN:
+      PROJECT_ID:
+      STORAGE_BUCKET:
+      MESSAGING_SENDER_ID:
+      APP_ID:
+      MEASUREMENT_ID:
+      MONGODB_URL: mongodb://holu_user:root_12345@db:27017/holu
+    ports:
+      - 4000:4000
+      - 9229:9229
+    depends_on:
+      - db
+  db:
+    image: mongo
+    volumes:
+      - ./db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: holu_user
+      MONGO_INITDB_ROOT_PASSWORD: root_12345
+      MONGO_INITDB_DATABASE: holu
+    ports:
+      - 27017:27017
+
+volumes:
+  mongo-data: ~
